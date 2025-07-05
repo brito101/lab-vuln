@@ -1,0 +1,76 @@
+# PDF Files - Course Materials and Proposals
+*.pdf
+
+# Docker and Container files
+*.tar
+*.tar.gz
+*.tar.bz2
+*.zip
+
+# Log files
+logs/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Docker volumes and data
+data/
+volumes/
+
+# Backup files
+*.bak
+*.backup
+
+# Sensitive files (if any)
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+.env
+
+# Build artifacts
+build/
+dist/
+*.o
+*.so
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Specific files to ignore
+EMENTA*.pdf
+RSQUAD*.pdf
+PROPOSTA*.pdf 

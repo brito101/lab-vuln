@@ -1,0 +1,31 @@
+services:
+  maquina3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: maquina3-soc
+    hostname: maquina3
+    ports:
+      - "2121:21"    # FTP
+      - "2222:22"    # SSH
+      - "2139:139"   # Samba NetBIOS
+      - "2445:445"   # Samba SMB
+      - "2514:514"   # Syslog
+    networks:
+      - soc-network
+    restart: unless-stopped
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    volumes:
+      - ./logs:/var/log
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - seccomp:unconfined
+
+networks:
+  soc-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.100.0/24 
