@@ -66,7 +66,7 @@ rsquad-lab/
 ```bash
 # Clone or download this repository
 git clone <repository-url>
-cd rsquad-lab
+cd lab-vuln
 
 # Start a specific machine
 cd MAQ-3
