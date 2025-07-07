@@ -1,6 +1,6 @@
 # MAQ-3 - Linux Debian (Infrastructure/File Server) - Vulnerable Machine
 
-This machine is part of the RSQUAD Lab and is intentionally vulnerable for cybersecurity training, incident response, and SOC exercises.
+This machine is part of the Lab and is intentionally vulnerable for cybersecurity training, incident response, and SOC exercises.
 
 ---
 

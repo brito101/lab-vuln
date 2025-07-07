@@ -23,7 +23,7 @@ This laboratory is designed for:
 ## 🏗️ **Laboratory Structure**
 
 ```
-rsquad-lab/
+lab-vuln/
 ├── MAQ-1/          # Machine 1 - [Description]
 ├── MAQ-2/          # Machine 2 - Laravel Web Application (Vulnerable)
 ├── MAQ-3/          # Machine 3 - Linux Debian (Infrastructure/File Server)
