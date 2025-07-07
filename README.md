@@ -25,7 +25,7 @@ This laboratory is designed for:
 ```
 rsquad-lab/
 ├── MAQ-1/          # Machine 1 - [Description]
-├── MAQ-2/          # Machine 2 - [Description]  
+├── MAQ-2/          # Machine 2 - Laravel Web Application (Vulnerable)
 ├── MAQ-3/          # Machine 3 - Linux Debian (Infrastructure/File Server)
 ├── MAQ-Windows/    # Windows Machine - [Description]
 └── docs/           # Documentation and guides
@@ -39,10 +39,11 @@ rsquad-lab/
 - **Attack Scenarios**: File enumeration, credential harvesting, privilege escalation
 - **Detection Points**: Authentication logs, file access patterns, network traffic
 
-### **MAQ-2 - [Coming Soon]**
-- **Description**: [To be defined]
-- **Vulnerabilities**: [To be defined]
-- **Attack Scenarios**: [To be defined]
+### **MAQ-2 - Laravel Web Application**
+- **Services**: Nginx, MySQL, Laravel with debug mode enabled
+- **Vulnerabilities**: Local File Inclusion (LFI), role escalation, unrestricted file upload, exposed .env file, incorrect permissions, debug mode
+- **Attack Scenarios**: File reading, privilege escalation, system reconnaissance, log analysis
+- **Detection Points**: Laravel logs, web server logs, file access patterns, role changes
 
 ### **MAQ-1 - [Coming Soon]**
 - **Description**: [To be defined]
@@ -73,6 +74,13 @@ docker-compose up -d
 
 # Access the machine
 docker exec -it maquina3-soc bash
+
+# Or start MAQ-2 (Laravel application)
+cd MAQ-2
+bash setup.sh
+
+# Access the web application
+# Open http://localhost:8000 in your browser
 ```
 
 ## 🔧 **Machine Management**
@@ -106,6 +114,7 @@ docker-compose up -d --build
 2. **Incident Detection**: Identify suspicious activities and potential breaches
 3. **Threat Hunting**: Search for indicators of compromise (IoCs)
 4. **Response Procedures**: Document and respond to security incidents
+5. **Web Application Monitoring**: Detect LFI attempts, role escalations, file uploads
 
 ### **Red Team Exercises**
 1. **Reconnaissance**: Network scanning, service enumeration
@@ -113,6 +122,7 @@ docker-compose up -d --build
 3. **Persistence**: Maintain access across system restarts
 4. **Lateral Movement**: Navigate through the network
 5. **Data Exfiltration**: Extract sensitive information
+6. **Web Application Attacks**: LFI exploitation, privilege escalation, file upload bypass
 
 ### **Purple Team Exercises**
 1. **Attack Simulation**: Red team executes attacks while blue team defends
@@ -128,6 +138,8 @@ docker-compose up -d --build
 - Service-specific logs (SSH, FTP, Samba)
 - Network traffic logs
 - Application logs
+- Web application logs (Laravel logs, Nginx/Apache logs)
+- Database logs (MySQL, PostgreSQL)
 
 ### **Detection Tools**
 - SIEM systems (ELK Stack, Splunk, etc.)
@@ -160,6 +172,7 @@ docker-compose up -d --build
 ### **Recommended Tools**
 - **Network Analysis**: Wireshark, Nmap, Netcat
 - **Vulnerability Assessment**: Nessus, OpenVAS, Nmap scripts
+- **Web Application Security**: Burp Suite, OWASP ZAP, Nikto, Gobuster
 - **Exploitation**: Metasploit, Burp Suite, OWASP ZAP
 - **Forensics**: Autopsy, Volatility, Sleuth Kit
 
