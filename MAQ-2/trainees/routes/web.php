@@ -51,8 +51,35 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Rota de teste de autenticação web (pública para debug)
+Route::get('/test-web-auth', function () {
+    return response()->json([
+        'success' => true,
+        'message' => 'Web Authentication Test',
+        'data' => [
+            'authenticated' => auth()->check(),
+            'user_id' => auth()->id(),
+            'user_name' => auth()->user() ? auth()->user()->name : null,
+            'session_id' => session()->getId(),
+        ]
+    ]);
+})->name('test.web.auth');
+
 Route::group(['middleware' => ['auth']], function () {
     Route::get('admin', [AdminController::class, 'index'])->name('admin.home');
+    
+    // Rotas vulneráveis mas autenticadas para simulação de laboratório
+    Route::prefix('api')->name('api.')->group(function () {
+        // Informações do usuário autenticado
+        Route::get('/me', [\App\Http\Controllers\Api\AuthController::class, 'me'])->name('me');
+        
+        // Lista todos os usuários com suas roles (vulnerável - expõe informações sensíveis)
+        Route::get('/users', [\App\Http\Controllers\Api\UserApiController::class, 'listUsers'])->name('users.list');
+        
+        // Busca usuário específico por ID (vulnerável - expõe informações sensíveis)
+        Route::get('/users/{id}', [\App\Http\Controllers\Api\UserApiController::class, 'getUserById'])->name('users.show');
+    });
+    
     Route::prefix('admin')->name('admin.')->group(function () {
         /** Chart home */
         Route::get('/chart', [AdminController::class, 'chart'])->name('home.chart');
