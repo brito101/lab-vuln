@@ -56,332 +56,367 @@ echo "" >> $LOG_FILE
 function create_memory_dump() {
     print_status "CREATING MEMORY DUMP"
     
-    try {
-        print_warning "Creating memory dump..."
-        print_warning "This may take several minutes depending on RAM size..."
-        
-        # Create memory dump using dd
-        MEMORY_DUMP="$ARTIFACTS_DIR/memory-dump-$(date +%Y%m%d-%H%M%S).raw"
-        
-        # Use /proc/kcore for kernel memory (if available)
-        if [[ -r /proc/kcore ]]; then
-            dd if=/proc/kcore of="$MEMORY_DUMP" bs=1M count=1024 2>/dev/null
+    print_warning "Creating memory dump..."
+    print_warning "This may take several minutes depending on RAM size..."
+    
+    # Create memory dump using dd
+    MEMORY_DUMP="$ARTIFACTS_DIR/memory-dump-$(date +%Y%m%d-%H%M%S).raw"
+    
+    # Use /proc/kcore for kernel memory (if available)
+    if [[ -r /proc/kcore ]]; then
+        if dd if=/proc/kcore of="$MEMORY_DUMP" bs=1M count=1024 2>/dev/null; then
             print_success "Created kernel memory dump: $MEMORY_DUMP"
             echo "Created kernel memory dump: $MEMORY_DUMP" >> $LOG_FILE
+        else
+            print_error "Failed to create kernel memory dump"
+            echo "Failed to create kernel memory dump" >> $LOG_FILE
         fi
-        
-        # Create process memory dumps for critical processes
-        CRITICAL_PROCESSES=("sshd" "vsftpd" "smbd" "apache2" "nginx" "systemd")
-        
-        for process in "${CRITICAL_PROCESSES[@]}"; do
-            PID=$(pgrep $process 2>/dev/null | head -1)
-            if [[ -n $PID ]]; then
-                PROCESS_DUMP="$ARTIFACTS_DIR/process-$process-$PID-$(date +%Y%m%d-%H%M%S).dump"
-                
-                # Create process memory dump using gcore
-                if command -v gcore &> /dev/null; then
-                    gcore -o "$ARTIFACTS_DIR/process-$process-$PID" $PID 2>/dev/null
+    fi
+    
+    # Create process memory dumps for critical processes
+    CRITICAL_PROCESSES=("sshd" "vsftpd" "smbd" "apache2" "nginx" "systemd")
+    
+    for process in "${CRITICAL_PROCESSES[@]}"; do
+        PID=$(pgrep $process 2>/dev/null | head -1)
+        if [[ -n $PID ]]; then
+            PROCESS_DUMP="$ARTIFACTS_DIR/process-$process-$PID-$(date +%Y%m%d-%H%M%S).dump"
+            
+            # Create process memory dump using gcore
+            if command -v gcore &> /dev/null; then
+                if gcore -o "$ARTIFACTS_DIR/process-$process-$PID" $PID 2>/dev/null; then
                     print_success "Created process dump for $process (PID: $PID)"
                     echo "Created process dump for $process (PID: $PID)" >> $LOG_FILE
+                else
+                    print_error "Failed to create process dump for $process (PID: $PID)"
+                    echo "Failed to create process dump for $process (PID: $PID)" >> $LOG_FILE
                 fi
             fi
-        done
-        
-        print_success "Memory dumps created"
-    }
-    catch {
-        print_error "Error creating memory dump: $?"
-        echo "Error creating memory dump" >> $LOG_FILE
-    }
+        fi
+    done
+    
+    print_success "Memory dumps created"
 }
 
 # Function to collect system logs
 function collect_system_logs() {
     print_status "COLLECTING SYSTEM LOGS"
     
-    try {
-        # Copy system logs
-        print_warning "Copying system logs..."
-        
-        LOG_SOURCES=(
-            "/var/log/syslog"
-            "/var/log/messages"
-            "/var/log/auth.log"
-            "/var/log/daemon.log"
-            "/var/log/kern.log"
-            "/var/log/dpkg.log"
-            "/var/log/apt/history.log"
-        )
-        
-        for log_file in "${LOG_SOURCES[@]}"; do
-            if [[ -f $log_file ]]; then
-                cp "$log_file" "$ARTIFACTS_DIR/$(basename $log_file)-$(date +%Y%m%d-%H%M%S).log"
+    # Copy system logs
+    print_warning "Copying system logs..."
+    
+    LOG_SOURCES=(
+        "/var/log/syslog"
+        "/var/log/messages"
+        "/var/log/auth.log"
+        "/var/log/daemon.log"
+        "/var/log/kern.log"
+        "/var/log/dpkg.log"
+        "/var/log/apt/history.log"
+    )
+    
+    for log_file in "${LOG_SOURCES[@]}"; do
+        if [[ -f $log_file ]]; then
+            if cp "$log_file" "$ARTIFACTS_DIR/$(basename $log_file)-$(date +%Y%m%d-%H%M%S).log"; then
                 print_success "Copied: $log_file"
                 echo "Copied log file: $log_file" >> $LOG_FILE
+            else
+                print_error "Failed to copy: $log_file"
+                echo "Failed to copy log file: $log_file" >> $LOG_FILE
             fi
-        done
-        
-        # Collect service-specific logs
-        SERVICE_LOGS=(
-            "/var/log/ssh/*"
-            "/var/log/vsftpd.log*"
-            "/var/log/samba/*"
-            "/var/log/apache2/*"
-            "/var/log/nginx/*"
-        )
-        
-        for log_pattern in "${SERVICE_LOGS[@]}"; do
-            if ls $log_pattern 1> /dev/null 2>&1; then
-                cp $log_pattern "$ARTIFACTS_DIR/" 2>/dev/null
+        fi
+    done
+    
+    # Collect service-specific logs
+    SERVICE_LOGS=(
+        "/var/log/ssh/*"
+        "/var/log/vsftpd.log*"
+        "/var/log/samba/*"
+        "/var/log/apache2/*"
+        "/var/log/nginx/*"
+    )
+    
+    for log_pattern in "${SERVICE_LOGS[@]}"; do
+        if ls $log_pattern 1> /dev/null 2>&1; then
+            if cp $log_pattern "$ARTIFACTS_DIR/" 2>/dev/null; then
                 print_success "Copied service logs: $log_pattern"
                 echo "Copied service logs: $log_pattern" >> $LOG_FILE
+            else
+                print_error "Failed to copy service logs: $log_pattern"
+                echo "Failed to copy service logs: $log_pattern" >> $LOG_FILE
             fi
-        done
-        
-        print_success "System logs collected"
-    }
-    catch {
-        print_error "Error collecting system logs: $?"
-        echo "Error collecting system logs" >> $LOG_FILE
-    }
+        fi
+    done
+    
+    print_success "System logs collected"
 }
 
 # Function to collect audit logs
 function collect_audit_logs() {
     print_status "COLLECTING AUDIT LOGS"
     
-    try {
-        # Check if auditd is running
-        if systemctl is-active --quiet auditd; then
-            print_warning "Collecting audit logs..."
-            
-            # Copy audit logs
-            if [[ -d /var/log/audit ]]; then
-                cp -r /var/log/audit/* "$ARTIFACTS_DIR/" 2>/dev/null
+    # Check if auditd is running
+    if systemctl is-active --quiet auditd; then
+        print_warning "Collecting audit logs..."
+        
+        # Copy audit logs
+        if [[ -d /var/log/audit ]]; then
+            if cp -r /var/log/audit/* "$ARTIFACTS_DIR/" 2>/dev/null; then
                 print_success "Copied audit logs"
                 echo "Copied audit logs" >> $LOG_FILE
+            else
+                print_error "Failed to copy audit logs"
+                echo "Failed to copy audit logs" >> $LOG_FILE
             fi
-            
-            # Export current audit rules
-            AUDIT_RULES="$ARTIFACTS_DIR/audit-rules-$(date +%Y%m%d-%H%M%S).txt"
-            auditctl -l > "$AUDIT_RULES" 2>/dev/null
+        fi
+        
+        # Export current audit rules
+        AUDIT_RULES="$ARTIFACTS_DIR/audit-rules-$(date +%Y%m%d-%H%M%S).txt"
+        if auditctl -l > "$AUDIT_RULES" 2>/dev/null; then
             print_success "Exported audit rules: $AUDIT_RULES"
             echo "Exported audit rules: $AUDIT_RULES" >> $LOG_FILE
         else
-            print_warning "Audit daemon not running"
+            print_error "Failed to export audit rules"
+            echo "Failed to export audit rules" >> $LOG_FILE
         fi
-        
-        print_success "Audit logs collected"
-    }
-    catch {
-        print_error "Error collecting audit logs: $?"
-        echo "Error collecting audit logs" >> $LOG_FILE
-    }
+    else
+        print_warning "Audit daemon not running"
+    fi
+    
+    print_success "Audit logs collected"
 }
 
 # Function to collect network artifacts
 function collect_network_artifacts() {
     print_status "COLLECTING NETWORK ARTIFACTS"
     
-    try {
-        # Network connections
-        NETSTAT_FILE="$ARTIFACTS_DIR/netstat-$(date +%Y%m%d-%H%M%S).txt"
-        netstat -tuln > "$NETSTAT_FILE"
+    # Network connections
+    NETSTAT_FILE="$ARTIFACTS_DIR/netstat-$(date +%Y%m%d-%H%M%S).txt"
+    if netstat -tuln > "$NETSTAT_FILE"; then
         print_success "Exported network connections: $NETSTAT_FILE"
-        
-        # ARP table
-        ARP_FILE="$ARTIFACTS_DIR/arp-table-$(date +%Y%m%d-%H%M%S).txt"
-        arp -a > "$ARP_FILE"
+    else
+        print_error "Failed to export network connections"
+    fi
+    
+    # ARP table
+    ARP_FILE="$ARTIFACTS_DIR/arp-table-$(date +%Y%m%d-%H%M%S).txt"
+    if arp -a > "$ARP_FILE"; then
         print_success "Exported ARP table: $ARP_FILE"
-        
-        # Routing table
-        ROUTE_FILE="$ARTIFACTS_DIR/routing-table-$(date +%Y%m%d-%H%M%S).txt"
-        route -n > "$ROUTE_FILE"
+    else
+        print_error "Failed to export ARP table"
+    fi
+    
+    # Routing table
+    ROUTE_FILE="$ARTIFACTS_DIR/routing-table-$(date +%Y%m%d-%H%M%S).txt"
+    if route -n > "$ROUTE_FILE"; then
         print_success "Exported routing table: $ROUTE_FILE"
-        
-        # DNS cache
-        DNS_FILE="$ARTIFACTS_DIR/dns-cache-$(date +%Y%m%d-%H%M%S).txt"
-        cat /etc/resolv.conf > "$DNS_FILE"
+    else
+        print_error "Failed to export routing table"
+    fi
+    
+    # DNS cache
+    DNS_FILE="$ARTIFACTS_DIR/dns-cache-$(date +%Y%m%d-%H%M%S).txt"
+    if cat /etc/resolv.conf > "$DNS_FILE"; then
         print_success "Exported DNS configuration: $DNS_FILE"
-        
-        # Network interfaces
-        IFACE_FILE="$ARTIFACTS_DIR/network-interfaces-$(date +%Y%m%d-%H%M%S).txt"
-        ip addr show > "$IFACE_FILE"
+    else
+        print_error "Failed to export DNS configuration"
+    fi
+    
+    # Network interfaces
+    IFACE_FILE="$ARTIFACTS_DIR/network-interfaces-$(date +%Y%m%d-%H%M%S).txt"
+    if ip addr show > "$IFACE_FILE"; then
         print_success "Exported network interfaces: $IFACE_FILE"
-        
-        # Firewall rules
-        FIREWALL_FILE="$ARTIFACTS_DIR/firewall-rules-$(date +%Y%m%d-%H%M%S).txt"
-        iptables -L -n -v > "$FIREWALL_FILE" 2>/dev/null
+    else
+        print_error "Failed to export network interfaces"
+    fi
+    
+    # Firewall rules
+    FIREWALL_FILE="$ARTIFACTS_DIR/firewall-rules-$(date +%Y%m%d-%H%M%S).txt"
+    if iptables -L -n -v > "$FIREWALL_FILE" 2>/dev/null; then
         print_success "Exported firewall rules: $FIREWALL_FILE"
-        
-        echo "Network artifacts collected" >> $LOG_FILE
-        print_success "Network artifacts collected"
-    }
-    catch {
-        print_error "Error collecting network artifacts: $?"
-        echo "Error collecting network artifacts" >> $LOG_FILE
-    }
+    else
+        print_error "Failed to export firewall rules"
+    fi
+    
+    echo "Network artifacts collected" >> $LOG_FILE
+    print_success "Network artifacts collected"
 }
 
 # Function to collect process information
 function collect_process_information() {
     print_status "COLLECTING PROCESS INFORMATION"
     
-    try {
-        # Process list
-        PROCESS_FILE="$ARTIFACTS_DIR/process-list-$(date +%Y%m%d-%H%M%S).txt"
-        ps aux > "$PROCESS_FILE"
+    # Process list
+    PROCESS_FILE="$ARTIFACTS_DIR/process-list-$(date +%Y%m%d-%H%M%S).txt"
+    if ps aux > "$PROCESS_FILE"; then
         print_success "Exported process list: $PROCESS_FILE"
-        
-        # Service status
-        SERVICE_FILE="$ARTIFACTS_DIR/service-status-$(date +%Y%m%d-%H%M%S).txt"
-        systemctl list-units --type=service --state=running > "$SERVICE_FILE"
+    else
+        print_error "Failed to export process list"
+    fi
+    
+    # Service status
+    SERVICE_FILE="$ARTIFACTS_DIR/service-status-$(date +%Y%m%d-%H%M%S).txt"
+    if systemctl list-units --type=service --state=running > "$SERVICE_FILE"; then
         print_success "Exported service status: $SERVICE_FILE"
-        
-        # Open files
-        LSOF_FILE="$ARTIFACTS_DIR/open-files-$(date +%Y%m%d-%H%M%S).txt"
-        lsof > "$LSOF_FILE" 2>/dev/null
+    else
+        print_error "Failed to export service status"
+    fi
+    
+    # Open files
+    LSOF_FILE="$ARTIFACTS_DIR/open-files-$(date +%Y%m%d-%H%M%S).txt"
+    if lsof > "$LSOF_FILE" 2>/dev/null; then
         print_success "Exported open files: $LSOF_FILE"
-        
-        # Loaded modules
-        MODULES_FILE="$ARTIFACTS_DIR/loaded-modules-$(date +%Y%m%d-%H%M%S).txt"
-        lsmod > "$MODULES_FILE"
+    else
+        print_error "Failed to export open files"
+    fi
+    
+    # Loaded modules
+    MODULES_FILE="$ARTIFACTS_DIR/loaded-modules-$(date +%Y%m%d-%H%M%S).txt"
+    if lsmod > "$MODULES_FILE"; then
         print_success "Exported loaded modules: $MODULES_FILE"
-        
-        echo "Process information collected" >> $LOG_FILE
-        print_success "Process information collected"
-    }
-    catch {
-        print_error "Error collecting process information: $?"
-        echo "Error collecting process information" >> $LOG_FILE
-    }
+    else
+        print_error "Failed to export loaded modules"
+    fi
+    
+    echo "Process information collected" >> $LOG_FILE
+    print_success "Process information collected"
 }
 
 # Function to create disk image
 function create_disk_image() {
     print_status "CREATING DISK IMAGE"
     
-    try {
-        print_warning "Creating disk image components..."
-        print_warning "This may take a long time depending on disk size..."
-        
-        # Create logical copy of important directories
-        IMPORTANT_DIRS=(
-            "/etc"
-            "/var/log"
-            "/home"
-            "/root"
-            "/tmp"
-            "/var/spool"
-            "/var/cache"
-        )
-        
-        for dir in "${IMPORTANT_DIRS[@]}"; do
-            if [[ -d $dir ]]; then
-                COPY_DIR="$ARTIFACTS_DIR/$(basename $dir)-copy-$(date +%Y%m%d-%H%M%S)"
-                print_warning "Copying directory: $dir"
-                
-                # Use rsync for reliable copying
-                rsync -av --exclude='*.tmp' --exclude='*.cache' "$dir/" "$COPY_DIR/" 2>/dev/null
-                
-                if [[ -d $COPY_DIR ]]; then
-                    print_success "Copied: $COPY_DIR"
-                    echo "Copied directory: $COPY_DIR" >> $LOG_FILE
-                fi
+    print_warning "Creating disk image components..."
+    print_warning "This may take a long time depending on disk size..."
+    
+    # Create logical copy of important directories
+    IMPORTANT_DIRS=(
+        "/etc"
+        "/var/log"
+        "/home"
+        "/root"
+        "/tmp"
+        "/var/spool"
+        "/var/cache"
+    )
+    
+    for dir in "${IMPORTANT_DIRS[@]}"; do
+        if [[ -d $dir ]]; then
+            COPY_DIR="$ARTIFACTS_DIR/$(basename $dir)-copy-$(date +%Y%m%d-%H%M%S)"
+            print_warning "Copying directory: $dir"
+            
+            # Use rsync for reliable copying
+            if rsync -av --exclude='*.tmp' --exclude='*.cache' "$dir/" "$COPY_DIR/" 2>/dev/null; then
+                print_success "Copied: $COPY_DIR"
+                echo "Copied directory: $COPY_DIR" >> $LOG_FILE
+            else
+                print_error "Failed to copy directory: $dir"
+                echo "Failed to copy directory: $dir" >> $LOG_FILE
             fi
-        done
-        
-        # Create file system information
-        FS_INFO="$ARTIFACTS_DIR/filesystem-info-$(date +%Y%m%d-%H%M%S).txt"
-        df -h > "$FS_INFO"
-        mount > "$FS_INFO.tmp"
+        fi
+    done
+    
+    # Create file system information
+    FS_INFO="$ARTIFACTS_DIR/filesystem-info-$(date +%Y%m%d-%H%M%S).txt"
+    if df -h > "$FS_INFO"; then
+        print_success "Exported filesystem information: $FS_INFO"
+    else
+        print_error "Failed to export filesystem information"
+    fi
+    if mount > "$FS_INFO.tmp"; then
         cat "$FS_INFO.tmp" >> "$FS_INFO"
         rm "$FS_INFO.tmp"
-        print_success "Exported filesystem information: $FS_INFO"
-        
-        print_success "Disk image components created"
-    }
-    catch {
-        print_error "Error creating disk image: $?"
-        echo "Error creating disk image" >> $LOG_FILE
-    }
+    else
+        print_error "Failed to export mount information"
+        echo "Failed to export mount information" >> $LOG_FILE
+    fi
+    
+    print_success "Disk image components created"
 }
 
 # Function to collect timeline
 function create_timeline() {
     print_status "CREATING TIMELINE"
     
-    try {
-        print_warning "Creating file system timeline..."
-        
-        TIMELINE_FILE="$ARTIFACTS_DIR/system-timeline-$(date +%Y%m%d-%H%M%S).txt"
-        
-        # Create timeline using find command
-        find /home /root /tmp /var/log /etc -type f -printf "%T@ %p %s %M\n" 2>/dev/null | \
-            sort -n | \
-            while read timestamp path size mode; do
-                date -d "@$timestamp" "+%Y-%m-%d %H:%M:%S" | tr '\n' ' '
-                echo "$path $size $mode"
-            done > "$TIMELINE_FILE"
-        
+    print_warning "Creating file system timeline..."
+    
+    TIMELINE_FILE="$ARTIFACTS_DIR/system-timeline-$(date +%Y%m%d-%H%M%S).txt"
+    
+    # Create timeline using find command
+    if find /home /root /tmp /var/log /etc -type f -printf "%T@ %p %s %M\n" 2>/dev/null | \
+        sort -n | \
+        while read timestamp path size mode; do
+            date -d "@$timestamp" "+%Y-%m-%d %H:%M:%S" | tr '\n' ' '
+            echo "$path $size $mode"
+        done > "$TIMELINE_FILE"; then
         print_success "Created timeline: $TIMELINE_FILE"
         echo "Created timeline: $TIMELINE_FILE" >> $LOG_FILE
         print_success "Timeline created"
-    }
-    catch {
-        print_error "Error creating timeline: $?"
-        echo "Error creating timeline" >> $LOG_FILE
-    }
+    else
+        print_error "Failed to create timeline"
+        echo "Failed to create timeline" >> $LOG_FILE
+    fi
 }
 
 # Function to collect volatile data
 function collect_volatile_data() {
     print_status "COLLECTING VOLATILE DATA"
     
-    try {
-        # Memory information
-        MEMORY_FILE="$ARTIFACTS_DIR/memory-info-$(date +%Y%m%d-%H%M%S).txt"
-        cat /proc/meminfo > "$MEMORY_FILE"
+    # Memory information
+    MEMORY_FILE="$ARTIFACTS_DIR/memory-info-$(date +%Y%m%d-%H%M%S).txt"
+    if cat /proc/meminfo > "$MEMORY_FILE"; then
         print_success "Exported memory information: $MEMORY_FILE"
-        
-        # CPU information
-        CPU_FILE="$ARTIFACTS_DIR/cpu-info-$(date +%Y%m%d-%H%M%S).txt"
-        cat /proc/cpuinfo > "$CPU_FILE"
+    else
+        print_error "Failed to export memory information"
+    fi
+    
+    # CPU information
+    CPU_FILE="$ARTIFACTS_DIR/cpu-info-$(date +%Y%m%d-%H%M%S).txt"
+    if cat /proc/cpuinfo > "$CPU_FILE"; then
         print_success "Exported CPU information: $CPU_FILE"
-        
-        # System information
-        SYSTEM_FILE="$ARTIFACTS_DIR/system-info-$(date +%Y%m%d-%H%M%S).txt"
-        uname -a > "$SYSTEM_FILE"
-        cat /proc/version >> "$SYSTEM_FILE"
+    else
+        print_error "Failed to export CPU information"
+    fi
+    
+    # System information
+    SYSTEM_FILE="$ARTIFACTS_DIR/system-info-$(date +%Y%m%d-%H%M%S).txt"
+    if uname -a > "$SYSTEM_FILE"; then
         print_success "Exported system information: $SYSTEM_FILE"
-        
-        # Kernel modules
-        KERNEL_FILE="$ARTIFACTS_DIR/kernel-modules-$(date +%Y%m%d-%H%M%S).txt"
-        lsmod > "$KERNEL_FILE"
+    else
+        print_error "Failed to export system information"
+    fi
+    if cat /proc/version >> "$SYSTEM_FILE"; then
+        print_success "Exported system information: $SYSTEM_FILE"
+    else
+        print_error "Failed to export system information"
+    fi
+    
+    # Kernel modules
+    KERNEL_FILE="$ARTIFACTS_DIR/kernel-modules-$(date +%Y%m%d-%H%M%S).txt"
+    if lsmod > "$KERNEL_FILE"; then
         print_success "Exported kernel modules: $KERNEL_FILE"
-        
-        # Environment variables
-        ENV_FILE="$ARTIFACTS_DIR/environment-$(date +%Y%m%d-%H%M%S).txt"
-        env > "$ENV_FILE"
+    else
+        print_error "Failed to export kernel modules"
+    fi
+    
+    # Environment variables
+    ENV_FILE="$ARTIFACTS_DIR/environment-$(date +%Y%m%d-%H%M%S).txt"
+    if env > "$ENV_FILE"; then
         print_success "Exported environment variables: $ENV_FILE"
-        
-        echo "Volatile data collected" >> $LOG_FILE
-        print_success "Volatile data collected"
-    }
-    catch {
-        print_error "Error collecting volatile data: $?"
-        echo "Error collecting volatile data" >> $LOG_FILE
-    }
+    else
+        print_error "Failed to export environment variables"
+    fi
+    
+    echo "Volatile data collected" >> $LOG_FILE
+    print_success "Volatile data collected"
 }
 
 # Function to create forensic report
 function create_forensic_report() {
     print_status "CREATING FORENSIC REPORT"
     
-    try {
-        REPORT_FILE="$ARTIFACTS_DIR/forensic-report-$(date +%Y%m%d-%H%M%S).md"
-        
-        cat > "$REPORT_FILE" << EOF
+    REPORT_FILE="$ARTIFACTS_DIR/forensic-report-$(date +%Y%m%d-%H%M%S).md"
+    
+    cat > "$REPORT_FILE" << EOF
 # Linux Forensic Artifacts Report - $MACHINE_NAME
 
 ## Collection Details
@@ -484,14 +519,9 @@ function create_forensic_report() {
 - Document all findings
 EOF
 
-        print_success "Created forensic report: $REPORT_FILE"
-        echo "Created forensic report: $REPORT_FILE" >> $LOG_FILE
-        print_success "Forensic report created"
-    }
-    catch {
-        print_error "Error creating forensic report: $?"
-        echo "Error creating forensic report" >> $LOG_FILE
-    }
+    print_success "Created forensic report: $REPORT_FILE"
+    echo "Created forensic report: $REPORT_FILE" >> $LOG_FILE
+    print_success "Forensic report created"
 }
 
 # Main execution
