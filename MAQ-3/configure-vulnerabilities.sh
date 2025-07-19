@@ -68,12 +68,18 @@ anon_upload_enable=YES
 anon_mkdir_write_enable=YES
 anon_other_write_enable=YES
 anon_world_readable_only=NO
+pasv_enable=YES
+pasv_min_port=30000
+pasv_max_port=31000
 EOF
 
 # Criar diretório para FTP anônimo
 mkdir -p /var/ftp/pub
+mkdir -p /var/run/vsftpd/empty
 chown ftp:ftp /var/ftp/pub
+chown ftp:ftp /var/run/vsftpd/empty
 chmod 777 /var/ftp/pub
+chmod 755 /var/run/vsftpd/empty
 
 # 3. Configurar Samba vulnerável
 echo "Configurando Samba vulnerável..."

@@ -2,18 +2,14 @@
 
 echo "=== Iniciando Máquina 3 - Servidor de Infraestrutura/Arquivos ==="
 
-# Executar scripts de configuração se não foram executados ainda
-if [ ! -f /var/log/services_configured ]; then
-    echo "Executando configuração inicial..."
-    /opt/install-services.sh
-    /opt/configure-vulnerabilities.sh
-    /opt/setup-files.sh
-    touch /var/log/services_configured
-    echo "Configuração inicial concluída!"
-fi
-
-# Criar diretórios necessários
+# Garantir que os diretórios existem
 mkdir -p /var/log/samba /var/log/samba/cores
+mkdir -p /var/run/vsftpd/empty
+mkdir -p /var/ftp/pub
+chown ftp:ftp /var/run/vsftpd/empty
+chown ftp:ftp /var/ftp/pub
+chmod 755 /var/run/vsftpd/empty
+chmod 777 /var/ftp/pub
 
 # Iniciar rsyslog
 echo "Iniciando rsyslog..."
@@ -53,7 +49,7 @@ show_info() {
     echo "- root:toor (acesso SSH habilitado)"
     echo ""
     echo "VULNERABILIDADES CONFIGURADAS:"
-    echo "- SSH com chave RSA 512 bits (fraca)"
+    echo "- SSH com chave RSA 1024 bits (fraca)"
     echo "- FTP anônimo habilitado"
     echo "- Samba com compartilhamento público"
     echo "- Syslog mal configurado (vazamento de credenciais)"

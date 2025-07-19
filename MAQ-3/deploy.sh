@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Script de Deploy para Máquina 3 - SOC Lab
-# Uso: ./deploy.sh [build|run|stop|restart|logs|clean]
+# Script de Deploy Otimizado para Máquina 3 - SOC Lab
+# Uso: ./deploy-optimized.sh [build|run|stop|restart|logs|clean|status]
 
 set -e
 
@@ -48,10 +48,11 @@ create_network() {
 # Função para construir a imagem
 build() {
     print_header
-    print_status "Construindo imagem Docker..."
+    print_status "Construindo imagem Docker otimizada..."
     
     if docker build -t $IMAGE_NAME .; then
         print_status "Imagem construída com sucesso!"
+        print_status "Todas as vulnerabilidades foram configuradas durante o build"
     else
         print_error "Erro ao construir imagem"
         exit 1
@@ -72,19 +73,51 @@ run() {
     # Criar rede se não existir
     create_network
     
-    # Parar container se já estiver rodando
-    if docker ps -q -f name=$CONTAINER_NAME | grep -q .; then
-        print_warning "Container já está rodando. Parando..."
-        docker stop $CONTAINER_NAME
-        docker rm $CONTAINER_NAME
+    # Parar e remover container se já existir
+    if docker ps -a -q -f name=$CONTAINER_NAME | grep -q .; then
+        print_warning "Container já existe. Removendo..."
+        docker stop $CONTAINER_NAME 2>/dev/null || true
+        docker rm $CONTAINER_NAME 2>/dev/null || true
     fi
     
-    # Executar container
+    # Verificar se as portas estão em uso
+    print_status "Verificando portas..."
+    
+    # Verificar porta SSH
+    if ss -tuln | grep -q ":22 "; then
+        print_warning "Porta 22 já está em uso. Usando porta 2222 para SSH"
+        SSH_PORT=2222
+    else
+        SSH_PORT=22
+    fi
+    
+    # Verificar porta FTP
+    if ss -tuln | grep -q ":21 "; then
+        print_warning "Porta 21 já está em uso. Usando porta 2121 para FTP"
+        FTP_PORT=2121
+    else
+        FTP_PORT=21
+    fi
+    
+    # Verificar se as portas alternativas também estão em uso
+    if [ "$SSH_PORT" = "2222" ] && ss -tuln | grep -q ":2222 "; then
+        print_error "Porta 2222 também está em uso. Parando..."
+        exit 1
+    fi
+    
+    if [ "$FTP_PORT" = "2121" ] && ss -tuln | grep -q ":2121 "; then
+        print_error "Porta 2121 também está em uso. Parando..."
+        exit 1
+    fi
+    
+    print_status "Portas selecionadas: SSH=$SSH_PORT, FTP=$FTP_PORT"
+    
+    # Executar container com portas verificadas
     docker run -d \
         --name $CONTAINER_NAME \
         --network $NETWORK_NAME \
-        -p 21:21 \
-        -p 22:22 \
+        -p $FTP_PORT:21 \
+        -p $SSH_PORT:22 \
         -p 139:139 \
         -p 445:445 \
         -p 514:514 \
@@ -96,6 +129,18 @@ run() {
         print_status "Container ID: $(docker ps -q -f name=$CONTAINER_NAME)"
         print_status "IP: $(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER_NAME)"
         echo ""
+        print_status "SERVIÇOS DISPONÍVEIS:"
+        echo "  SSH:     ssh ftpuser@localhost -p $SSH_PORT (password: password123)"
+        echo "  SSH:     ssh root@localhost -p $SSH_PORT (password: toor)"
+        echo "  FTP:     ftp localhost -p $FTP_PORT (anonymous)"
+        echo "  Samba:   smbclient -L //localhost -U anonymous"
+        echo ""
+        print_status "VULNERABILIDADES CONFIGURADAS:"
+        echo "  - SSH com chave RSA 1024 bits (fraca)"
+        echo "  - FTP anônimo habilitado"
+        echo "  - Samba com compartilhamento público"
+        echo "  - Syslog mal configurado"
+        echo ""
         print_status "Para acessar o container:"
         echo "  docker exec -it $CONTAINER_NAME bash"
         echo ""
@@ -103,7 +148,11 @@ run() {
         echo "  docker logs -f $CONTAINER_NAME"
         echo ""
         print_status "Para parar:"
-        echo "  ./deploy.sh stop"
+        echo "  ./deploy-optimized.sh stop"
+        echo ""
+        print_status "✅ Container está rodando em background!"
+        print_status "💡 Use 'docker logs -f $CONTAINER_NAME' para acompanhar os logs"
+        print_status "💡 Use './deploy-optimized.sh status' para verificar o status"
     else
         print_error "Erro ao iniciar container"
         exit 1
@@ -152,9 +201,9 @@ clean() {
     print_status "Limpando tudo..."
     
     # Parar e remover container
-    if docker ps -q -f name=$CONTAINER_NAME | grep -q .; then
-        docker stop $CONTAINER_NAME
-        docker rm $CONTAINER_NAME
+    if docker ps -a -q -f name=$CONTAINER_NAME | grep -q .; then
+        docker stop $CONTAINER_NAME 2>/dev/null || true
+        docker rm $CONTAINER_NAME 2>/dev/null || true
     fi
     
     # Remover imagem
@@ -169,10 +218,17 @@ clean() {
         fi
     fi
     
+    # Limpeza adicional (opcional)
+    if [ "$1" = "full" ]; then
+        print_status "Executando limpeza completa..."
+        docker system prune -f
+        docker volume prune -f
+    fi
+    
     print_status "Limpeza concluída!"
 }
 
-# Função para mostrar status
+    # Função para mostrar status
 status() {
     print_header
     print_status "Status do container:"
@@ -181,9 +237,34 @@ status() {
         print_status "Container está rodando"
         echo "Container ID: $(docker ps -q -f name=$CONTAINER_NAME)"
         echo "IP: $(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER_NAME)"
-        echo "Portas: 21, 22, 139, 445, 514"
+        
+        # Determinar portas em uso
+        if ss -tuln | grep -q ":22 "; then
+            SSH_PORT=2222
+        else
+            SSH_PORT=22
+        fi
+        
+        if ss -tuln | grep -q ":21 "; then
+            FTP_PORT=2121
+        else
+            FTP_PORT=21
+        fi
+        
+        echo "Portas: $FTP_PORT (FTP), $SSH_PORT (SSH), 139, 445, 514, 30000-31000"
+        echo ""
+        print_status "Teste de conectividade:"
+        echo "SSH:   nc -zv localhost $SSH_PORT"
+        echo "FTP:   nc -zv localhost $FTP_PORT"
+        echo "Samba: nc -zv localhost 445"
+        echo ""
+        print_status "Últimos logs do container:"
+        docker logs --tail 10 $CONTAINER_NAME
     else
         print_warning "Container não está rodando"
+        echo ""
+        print_status "Containers existentes:"
+        docker ps -a | grep $CONTAINER_NAME || echo "Nenhum container encontrado"
     fi
     
     echo ""
@@ -198,37 +279,31 @@ status() {
 # Função para mostrar ajuda
 show_help() {
     print_header
-    echo "Uso: $0 [COMANDO]"
+    echo "Uso: $0 [comando]"
     echo ""
     echo "Comandos disponíveis:"
-    echo "  build     - Construir a imagem Docker"
-    echo "  run       - Executar o container"
-    echo "  stop      - Parar o container"
-    echo "  restart   - Reiniciar o container"
-    echo "  logs      - Mostrar logs do container"
-    echo "  status    - Mostrar status do container"
-    echo "  clean     - Limpar tudo (container, imagem, rede)"
-    echo "  help      - Mostrar esta ajuda"
+    echo "  build    - Construir imagem Docker"
+    echo "  run      - Iniciar container"
+    echo "  stop     - Parar container"
+    echo "  restart  - Reiniciar container"
+    echo "  logs     - Mostrar logs"
+    echo "  clean    - Limpar tudo (container, imagem, rede)"
+    echo "  clean full - Limpeza completa + docker system prune"
+    echo "  status   - Mostrar status"
+    echo "  help     - Mostrar esta ajuda"
     echo ""
-    echo "Exemplos:"
-    echo "  $0 build"
-    echo "  $0 run"
-    echo "  $0 logs"
-    echo "  $0 stop"
+    echo "Exemplo:"
+    echo "  $0 build && $0 run"
 }
 
-# Verificar se Docker está rodando
-check_docker() {
-    if ! docker info > /dev/null 2>&1; then
-        print_error "Docker não está rodando ou não está instalado"
-        exit 1
-    fi
-}
+# Verificar argumentos
+if [ $# -eq 0 ]; then
+    show_help
+    exit 1
+fi
 
-# Main
-check_docker
-
-case "${1:-help}" in
+# Processar comando
+case "$1" in
     build)
         build
         ;;
@@ -244,13 +319,17 @@ case "${1:-help}" in
     logs)
         logs
         ;;
+    clean)
+        if [ "$2" = "full" ]; then
+            clean full
+        else
+            clean
+        fi
+        ;;
     status)
         status
         ;;
-    clean)
-        clean
-        ;;
-    help|--help|-h)
+    help)
         show_help
         ;;
     *)

@@ -133,6 +133,8 @@ For detailed information about reset scripts, see [README-reset-scripts.md](READ
 - Root: `root/root123`
 - User: `user/password123`
 
+**Configuration Instructions:** See [MAQ-3/README.md](MAQ-3/README.md) for detailed setup and configuration instructions.
+
 ### SIEM Central
 - Graylog for log aggregation
 - Elasticsearch for data storage
