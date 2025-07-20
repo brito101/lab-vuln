@@ -18,14 +18,14 @@ class UsersTableSeeder extends Seeder
         DB::table('users')->insert([
             [
                 'name'      => 'Programador',
-                'email'     => env('PROGRAMMER_EMAIL'),
-                'password'  => bcrypt(env('PROGRAMMER_PASSWD')),
+                'email'     => env('PROGRAMMER_EMAIL', 'programador@estagio.com'),
+                'password'  => bcrypt(env('PROGRAMMER_PASSWD', '12345678')),
                 'created_at' => new DateTime('now')
             ],
             [
                 'name'      => 'Administrator',
-                'email'     => env('ADMIN_EMAIL'),
-                'password'  => bcrypt(env('ADMIN_PASSWD')),
+                'email'     => env('ADMIN_EMAIL', 'admin@estagio.com'),
+                'password'  => bcrypt(env('ADMIN_PASSWD', '12345678')),
                 'created_at' => new DateTime('now')
             ],
             /** Testes */

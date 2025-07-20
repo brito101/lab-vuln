@@ -122,6 +122,8 @@ For detailed information about reset scripts, see [README-reset-scripts.md](READ
 - Admin: `admin/admin123`
 - User: `user/password123`
 
+**Deployment Instructions:** See [MAQ-2/deploy.sh](MAQ-2/deploy.sh) for automated deployment script using Docker/Sail. Use [MAQ-2/prepare-deploy-package.sh](MAQ-2/prepare-deploy-package.sh) to create a clean deployment package. For detailed configuration instructions, see [MAQ-2/README.md](MAQ-2/README.md).
+
 ### MAQ-3 (Linux Infrastructure)
 - Linux server with misconfigurations
 - SSH, FTP, and Samba services

@@ -1,11 +1,11 @@
-# Vulnerable Laravel Lab Environment (MAQ-2)
+# Vulnerable Trainees Lab Environment (MAQ-2)
 
 This environment is intentionally vulnerable for incident response and security training. **Do not use in production!**
 
 ## Services
 - **Web Server:** Nginx (default) or Apache (optional)
 - **Database:** MySQL
-- **Application:** Laravel (debug mode enabled)
+- **Application:** Trainees (Laravel-based, debug mode enabled)
 
 ## Vulnerabilities
 - **Unrestricted File Upload:** No validation on file uploads.
@@ -22,13 +22,49 @@ This environment is intentionally vulnerable for incident response and security 
 
 ## Quick Start
 
+### Automated Deployment
+```bash
+# Extract the deployment package
+tar -xzf maq2.tar.gz
+cd maq2-deploy-*
+
+# Run the deployment script
+./deploy.sh
+```
+
+### Manual Setup
 ```bash
 cd MAQ-2
 bash setup.sh
 ```
 
-- Access the app at: [http://localhost:8000](http://localhost:8000)
+- Access the app at: [http://localhost:80](http://localhost:80)
 - MySQL runs on port 3306 (default credentials in `.env`)
+
+## Deployment
+
+### Automated Deployment Package
+The `maq2.tar.gz` package contains:
+- Complete Trainees application (without vendor/node_modules)
+- Docker configuration (Sail)
+- Automated deployment script
+- All necessary documentation
+
+### Deployment Script Features
+- ✅ Automatic dependency installation
+- ✅ Docker container management
+- ✅ Database setup and seeding
+- ✅ Permission fixes
+- ✅ Vulnerability creation for lab purposes
+- ✅ Final verification and testing
+
+### Default Credentials
+- **Programador:** `programador@estagio.com` / `12345678`
+- **Administrator:** `admin@estagio.com` / `12345678`
+- **Franquiado 1:** `franquia1@estagio.com` / `12345678`
+- **Franquiado 2:** `franquia2@estagio.com` / `12345678`
+- **Franquiado 3:** `franquia3@estagio.com` / `12345678`
+- **Estagiário:** `estagiario@estagio.com` / `12345678`
 
 ## Simulating Vulnerabilities
 
@@ -52,9 +88,9 @@ bash setup.sh
 ### 5. Local File Inclusion (LFI)
 - Access the System menu in the admin panel.
 - Use "Visualizador de Arquivos" to read any file on the server.
-- Try reading Laravel logs, system files, or configuration files.
-- The endpoint is: `http://localhost:8000/admin/system/file?file=/var/www/html/storage/logs/laravel.log`
-- API endpoint: `http://localhost:8000/admin/system/log?file=/var/www/html/storage/logs/laravel.log`
+- Try reading Trainees logs, system files, or configuration files.
+- The endpoint is: `http://localhost:80/admin/system/file?file=/var/www/html/storage/logs/laravel.log`
+- API endpoint: `http://localhost:80/admin/system/log?file=/var/www/html/storage/logs/laravel.log`
 
 ### 6. Role Escalation
 - Edit your user profile and change the role to "Administrador" or "Programador".
@@ -70,11 +106,11 @@ nohup bash /tmp/c2.sh &
 ```
 
 ### Reconnaissance
-- **Nmap:** `nmap -A localhost -p 8000,3306`
-- **Gobuster:** `gobuster dir -u http://localhost:8000 -w /usr/share/wordlists/dirb/common.txt`
+- **Nmap:** `nmap -A localhost -p 80,3306`
+- **Gobuster:** `gobuster dir -u http://localhost:80 -w /usr/share/wordlists/dirb/common.txt`
 
 ## Logs
-- **Laravel logs:** `MAQ-2/trainees/storage/logs/`
+- **Trainees logs:** `MAQ-2/trainees/storage/logs/`
 - **Web server logs:** Inside the running container (e.g., `/var/log/nginx/`)
 - Payloads and attacks will be visible in these logs.
 
