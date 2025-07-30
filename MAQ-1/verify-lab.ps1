@@ -4,7 +4,39 @@
 
 function Write-ColorOutput {
     param([string]$Message, [string]$Color = "White")
-    Write-Host $Message -ForegroundColor $Color
+    
+    # Mapeamento de cores para garantir compatibilidade
+    $ColorMap = @{
+        "Red" = "Red"
+        "Green" = "Green" 
+        "Yellow" = "Yellow"
+        "Blue" = "Blue"
+        "White" = "White"
+        "Cyan" = "Cyan"
+        "Magenta" = "Magenta"
+        "Gray" = "Gray"
+        "DarkGray" = "DarkGray"
+        "DarkRed" = "DarkRed"
+        "DarkGreen" = "DarkGreen"
+        "DarkYellow" = "DarkYellow"
+        "DarkBlue" = "DarkBlue"
+        "DarkCyan" = "DarkCyan"
+        "DarkMagenta" = "DarkMagenta"
+    }
+    
+    try {
+        # Verificar se a cor é válida
+        if ($ColorMap.ContainsKey($Color)) {
+            Write-Host $Message -ForegroundColor $ColorMap[$Color]
+        } else {
+            # Fallback para cor padrão se não for reconhecida
+            Write-Host $Message -ForegroundColor "White"
+        }
+    }
+    catch {
+        # Fallback final se houver qualquer erro
+        Write-Host $Message
+    }
 }
 
 function Test-ADInstallation {
@@ -270,8 +302,8 @@ function Show-Summary {
         Write-ColorOutput "✅ Laboratório AD vulnerável está funcionando corretamente" "Green"
     } else {
         Write-ColorOutput "⚠️  ENCONTRADOS $($AllErrors.Count) PROBLEMAS:" "Yellow"
-        foreach ($error in $AllErrors) {
-            Write-ColorOutput "❌ $error" "Red"
+        foreach ($errorItem in $AllErrors) {
+            Write-ColorOutput "❌ $errorItem" "Red"
         }
         Write-ColorOutput "`nRecomendações:" "Yellow"
         Write-ColorOutput "1. Verifique se o script de instalação foi executado completamente" "Yellow"

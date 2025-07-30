@@ -48,9 +48,11 @@ This laboratory creates an intentionally vulnerable Active Directory environment
 # Open PowerShell as Administrator
 Set-ExecutionPolicy Bypass -Scope Process -Force
 
-# Run installation script
-.\install-ad-lab.ps1
+# Run installation script (use the corrected version)
+.\install-ad-lab-fixed.ps1
 ```
+
+**⚠️ Note**: If you encounter color output errors with any script, all scripts have been updated with robust color handling to prevent installation errors.
 
 ### Step 3: Configure Attacker Machine
 ```powershell
@@ -62,9 +64,16 @@ Set-ExecutionPolicy Bypass -Scope Process -Force
 
 ```
 MAQ-1/
-├── install-ad-lab.ps1          # Main installation script
-├── setup-attacker.ps1          # Attacker machine script
-├── setup-compromised-station.ps1  # Compromised workstation script
+├── install-ad-lab.ps1          # Installation script (updated with color fixes)
+├── install-ad-lab-fixed.ps1    # Alternative installation script
+├── setup-attacker.ps1          # Attacker machine script (updated)
+├── setup-compromised-station.ps1  # Compromised workstation script (updated)
+├── verify-lab.ps1              # Lab verification script (updated)
+├── simulate-ransomware.ps1     # Ransomware simulation (updated)
+├── recover-from-ransomware.ps1 # Recovery script (updated)
+├── create-forensic-artifacts.ps1 # Forensic artifacts (updated)
+├── reset-windows.ps1           # Reset script (updated)
+├── configure-syslog.ps1        # Syslog configuration (updated)
 ├── README.md                   # This file
 └── docs/
     ├── attack-scenarios.md     # Attack scenarios
@@ -457,6 +466,18 @@ Get-ScheduledTask | Where-Object {$_.State -eq "Running"}
 # Check event logs
 Get-WinEvent -LogName Security -MaxEvents 5
 ```
+
+### Problem: Color output errors during installation
+```powershell
+# All scripts now include robust color handling
+.\install-ad-lab.ps1
+
+# If you still encounter issues, try:
+$env:TERM = "dumb"
+.\install-ad-lab.ps1
+```
+
+**Solution**: All scripts have been updated with robust color handling that prevents errors related to console color support. The scripts now include fallback mechanisms for different terminal types.
 
 ## 📚 Next Steps
 
