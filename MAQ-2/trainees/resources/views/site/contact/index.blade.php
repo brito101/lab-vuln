@@ -47,7 +47,7 @@
                                 <div class="content">
                                     <i class="bx bx-message"></i>
                                     <h3>E-mail</h3>
-                                    <a href="mailto:contato@alfaestagios.com.br">contato@alfaestagios.com.br </a>
+                                    <a href="mailto:contato@trainees.com.br">contato@trainees.com.br </a>
                                 </div>
                             </li>
                         </ul>

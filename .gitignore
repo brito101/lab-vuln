@@ -44,6 +44,14 @@ MAQ-3/samba_public/
 MAQ-3/configs/
 MAQ-3/home/
 
+# MAQ-2 specific directories (created by deploy script)
+MAQ-2/logs/
+MAQ-2/vulnerable_files/
+MAQ-2/uploads/
+MAQ-2/backups/
+MAQ-2/configs/
+MAQ-2/home/
+
 # Backup files
 *.bak
 *.backup

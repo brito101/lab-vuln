@@ -58,7 +58,7 @@
                                     </a>
                                 </li> --}}
                                 <li>
-                                    <a href="https://www.instagram.com/alfaestagio/" target="_blank">
+                                    <a href="https://www.instagram.com/trainee/" target="_blank">
                                         <i class='bx bxl-instagram'></i>
                                     </a>
                                 </li>
@@ -212,7 +212,7 @@
                                         </a>
                                     </li> --}}
                                     <li>
-                                        <a href="https://www.instagram.com/alfaestagio/" target="_blank">
+                                        <a href="https://www.instagram.com/trainee/" target="_blank">
                                             <i class='bx bxl-instagram'></i>
                                         </a>
                                     </li>

@@ -33,13 +33,10 @@ mix.js("resources/js/app.js", "public/js")
         "public/site/js"
     )
     .copy(
-        "resources/OwlCarousel2-2.3.4/dist/owl.carousel.min.js",
+        "resources/OwlCarousel2-2.3.4/src/js/owl.carousel.js",
         "public/site/js"
     )
-    .copy(
-        "resources/Magnific-Popup/dist/jquery.magnific-popup.min.js",
-        "public/site/js"
-    )
+    
     .copy(
         "resources/jquery-nice-select-1.1.0/js/jquery.nice-select.min.js",
         "public/site/js"
