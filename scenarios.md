@@ -154,10 +154,10 @@ Detect and respond to Local File Inclusion (LFI) attacks against the Laravel app
 ## 🟡 **SCENARIO 3: Active Directory Enumeration**
 
 ### **🎯 Objective**
-Detect and respond to Active Directory enumeration attacks on MAQ-1.
+Detect and respond to Active Directory enumeration attacks on Windows machines.
 
 ### **📊 Scenario Details**
-- **Target**: MAQ-1 (Windows Active Directory)
+- **Target**: Windows Environment
 - **Attack Type**: AD enumeration and reconnaissance
 - **Duration**: 30-60 minutes
 - **Difficulty**: Intermediate
@@ -176,7 +176,7 @@ Detect and respond to Active Directory enumeration attacks on MAQ-1.
 ### **📝 Detection Steps**
 1. **Monitor AD authentication events**
    ```sql
-   source:MAQ-1 AND event_id:4625
+   source:Windows AND event_id:4625
    ```
 
 2. **Check for enumeration patterns**
@@ -280,7 +280,7 @@ Detect and respond to credential harvesting attacks via Samba file sharing on MA
 Detect and respond to a simulated ransomware attack across multiple machines.
 
 ### **📊 Scenario Details**
-- **Target**: All machines (MAQ-1, MAQ-2, MAQ-3)
+- **Target**: All machines (MAQ-2, MAQ-3)
 - **Attack Type**: Ransomware simulation with encryption
 - **Duration**: 45-90 minutes
 - **Difficulty**: Advanced

@@ -1,34 +1,28 @@
 # SIEM Central - Lab Vuln
 
-Este diretório contém a configuração do SIEM central para receber logs de todas as máquinas do laboratório.
+## 🎯 **Visão Geral**
 
-## 🎯 Objetivo
+O SIEM Central é o componente central de monitoramento e análise de logs do Lab Vuln. Ele fornece uma plataforma unificada para coleta, processamento e análise de logs de todas as máquinas vulneráveis, permitindo detecção de ataques em tempo real e análise forense.
 
-Centralizar logs de todas as máquinas vulneráveis para:
-- Análise de segurança em tempo real
-- Detecção de ataques e anomalias
-- Treinamento em análise de logs
-- Exercícios de SOC (Security Operations Center)
-
-## 🏗️ Arquitetura
+## 🏗️ **Arquitetura**
 
 ```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   MAQ-1     │    │   MAQ-2     │    │   MAQ-3     │
-│  (Windows)  │    │  (Laravel)  │    │   (Linux)   │
-└─────────────┘    └─────────────┘    └─────────────┘
-       │                   │                   │
-       └───────────────────┼───────────────────┘
-                           │
-                    ┌─────────────┐
-                    │   SIEM      │
-                    │  Central    │
-                    │ (Graylog/   │
-                    │  Wazuh)     │
-                    └─────────────┘
+┌─────────────┐    ┌─────────────┐
+│   MAQ-2     │    │   MAQ-3     │
+│  (Laravel)  │    │   (Linux)   │
+└─────────────┘    └─────────────┘
+       │                   │
+       └───────────────────┘
+                │
+         ┌─────────────┐
+         │   SIEM      │
+         │  Central    │
+         │ (Graylog/   │
+         │  Wazuh)     │
+         └─────────────┘
 ```
 
-## 🚀 Inicialização
+## 🚀 **Inicialização**
 
 ### 1. Iniciar o SIEM Central
 ```bash
@@ -48,19 +42,7 @@ Após acessar o Graylog:
 2. Adicione um input Syslog UDP na porta 1514
 3. Adicione um input GELF UDP na porta 12201
 
-## 📊 Configuração de Logs por Máquina
-
-### MAQ-1 (Windows AD)
-```powershell
-# Configurar envio de logs para SIEM
-# Adicionar ao script install-ad-lab.ps1
-$SIEM_IP = "192.168.1.100"  # IP do SIEM
-$SIEM_PORT = "1514"
-
-# Configurar Windows Event Forwarding
-wecutil qc /q
-winrm quickconfig
-```
+## 📊 **Configuração de Logs por Máquina**
 
 ### MAQ-2 (Laravel)
 ```bash
@@ -76,14 +58,7 @@ echo "*.* @192.168.1.100:1514" >> /etc/rsyslog.conf
 systemctl restart rsyslog
 ```
 
-## 🔍 Logs Enviados
-
-### MAQ-1 (Windows)
-- Eventos de autenticação (4624, 4625)
-- Criação de processos (4688)
-- Modificações de tarefas agendadas
-- Logs de Active Directory
-- Eventos de ransomware (simulação)
+## 🔍 **Logs Enviados**
 
 ### MAQ-2 (Laravel)
 - Logs de acesso web (Nginx/Apache)
@@ -98,7 +73,7 @@ systemctl restart rsyslog
 - Logs de acesso Samba
 - Logs do sistema (syslog)
 
-## 🎯 Cenários de Treinamento
+## 🎯 **Cenários de Treinamento**
 
 ### 1. Detecção de Ataques
 - Monitorar tentativas de brute force
@@ -107,111 +82,78 @@ systemctl restart rsyslog
 - Monitorar eventos de ransomware
 
 ### 2. Análise de Logs
-- Correlacionar eventos entre máquinas
-- Identificar padrões de ataque
-- Analisar sequência de eventos
-- Criar dashboards de monitoramento
+- Correlação de eventos entre máquinas
+- Análise de padrões de ataque
+- Investigação de incidentes
+- Criação de dashboards personalizados
 
 ### 3. Resposta a Incidentes
-- Investigar alertas em tempo real
-- Documentar incidentes
-- Criar playbooks de resposta
-- Treinar escalação de incidentes
+- Configuração de alertas automáticos
+- Escalação de incidentes
+- Documentação de resposta
+- Análise pós-incidente
 
-## 🛠️ Ferramentas Incluídas
+## 🔐 **Considerações de Segurança**
 
-### Graylog
-- Interface web para análise de logs
-- Dashboards personalizáveis
-- Alertas configuráveis
-- Pesquisa avançada de logs
+### Ambiente de Laboratório
+- SIEM configurado apenas para uso em laboratório
+- Autenticação mínima para facilidade de uso
+- Sem criptografia entre máquinas e SIEM
+- Credenciais padrão para todos os serviços
 
-### Wazuh
-- Detecção de intrusão
-- Análise de integridade
-- Monitoramento de logs
-- Resposta a incidentes
+### Considerações de Produção
+- Habilitar autenticação e criptografia
+- Usar senhas fortes e únicas
+- Implementar controles de acesso apropriados
+- Atualizações de segurança regulares
+- Segmentação de rede
+- Procedimentos de backup e recuperação
 
-### Logstash
-- Processamento de logs
-- Filtros personalizáveis
-- Transformação de dados
-- Integração com Elasticsearch
+## 📋 **Checklist**
 
-## 📈 Dashboards Sugeridos
+### Pré-Configuração
+- [ ] Docker e Docker Compose instalados
+- [ ] Pelo menos 4GB RAM disponível
+- [ ] Pelo menos 10GB espaço em disco
+- [ ] Ambiente de rede isolado
+- [ ] Todas as máquinas funcionando
 
-### Dashboard de Segurança Geral
-- Tentativas de login falhadas
-- Uploads de arquivos
-- Acessos a arquivos sensíveis
-- Eventos de ransomware
+### Configuração SIEM
+- [ ] Containers SIEM iniciados
+- [ ] Graylog acessível em http://localhost:9000
+- [ ] Inputs configurados no Graylog
+- [ ] Logs de teste recebidos
 
-### Dashboard de Performance
-- Uso de recursos por máquina
-- Latência de rede
-- Erros de aplicação
-- Disponibilidade de serviços
+### Configuração de Máquina
+- [ ] MAQ-2 (Laravel) configurada
+- [ ] MAQ-3 (Linux) configurada
+- [ ] Encaminhamento de logs funcionando
+- [ ] Monitoramento de segurança ativo
 
-### Dashboard de Ataques
-- Tentativas de brute force
-- Exploração de vulnerabilidades
-- Movimento lateral
-- Exfiltração de dados
+### Verificação
+- [ ] Todos os serviços funcionando
+- [ ] Logs aparecendo no SIEM
+- [ ] Dashboards criados
+- [ ] Alertas configurados
+- [ ] Cenários de treinamento funcionando
 
-## 🔧 Configuração Avançada
+## 📞 **Suporte**
 
-### Alertas
-```javascript
-// Exemplo de alerta para brute force
-{
-  "condition": "count > 5",
-  "field": "source",
-  "time": "5 minutes",
-  "message": "Possible brute force attack detected"
-}
-```
+### Documentação
+- SIEM Central: `siem-central/README.md`
+- Específica de máquina: `MAQ-X/README.md`
+- Credenciais: `siem-central/default-credentials.md`
 
-### Filtros
-```javascript
-// Exemplo de filtro para eventos de ransomware
-{
-  "field": "message",
-  "value": "encrypted",
-  "action": "highlight"
-}
-```
+### Scripts
+- Configuração Rápida: `./quick-setup-siem.sh`
+- Configuração: `./configure-all-syslog.sh`
+- Verificação: `./verify-siem-config.sh`
 
-## 🚨 Troubleshooting
-
-### Problemas Comuns
-1. **Logs não aparecem**: Verificar conectividade de rede
-2. **SIEM não inicia**: Verificar recursos disponíveis (mínimo 4GB RAM)
-3. **Portas em uso**: Alterar portas no docker-compose.yml
-
-### Comandos Úteis
-```bash
-# Verificar status dos containers
-docker-compose ps
-
-# Ver logs do SIEM
-docker-compose logs -f graylog
-
-# Reiniciar serviços
-docker-compose restart
-
-# Backup dos dados
-docker-compose down
-tar -czf siem-backup.tar.gz graylog_data mongo_data es_data
-```
-
-## 📚 Próximos Passos
-
-1. **Configurar alertas** para eventos críticos
-2. **Criar dashboards** específicos para cada cenário
-3. **Implementar playbooks** de resposta a incidentes
-4. **Treinar equipe** no uso das ferramentas
-5. **Documentar procedimentos** de análise
+### Logs
+- Logs SIEM: `siem-central/docker-compose logs`
+- Logs de Máquina: Verificar diretórios individuais de máquina
+- Logs de Configuração: `/var/log/` em máquinas Linux
 
 ---
 
-**Nota**: Este SIEM é para fins educacionais. Em produção, use soluções empresariais adequadas. 
+**Lembre-se**: Esta configuração SIEM é para fins educacionais. Em produção, sempre implemente medidas de segurança apropriadas! 

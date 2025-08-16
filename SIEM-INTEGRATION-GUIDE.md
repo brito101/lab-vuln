@@ -8,7 +8,7 @@ This guide provides complete instructions for setting up centralized log collect
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   MAQ-1     │    │   MAQ-2     │    │   MAQ-3     │
+│   MAQ-2     │    │   MAQ-3     │
 │  (Windows)  │    │  (Laravel)  │    │   (Linux)   │
 │             │    │             │    │             │
 │ • Windows   │    │ • Laravel   │    │ • SSH       │
@@ -51,8 +51,7 @@ cd siem-central
 ./start-siem.sh
 
 # 2. Configure each machine individually
-# Windows (MAQ-1)
-cd MAQ-1
+
 ./configure-syslog.ps1  # Run as Administrator
 
 # Laravel (MAQ-2)
@@ -88,16 +87,7 @@ cd MAQ-3
 
 ## 🔧 **Configuration Details**
 
-### **MAQ-1 (Windows)**
-- **Script**: `MAQ-1/configure-syslog.ps1`
-- **Requirements**: Run as Administrator
-- **Logs Forwarded**:
-  - Windows Event Logs (Security, Application, System)
-  - Active Directory events
-  - Process creation events (4688)
-  - Authentication events (4624, 4625)
-  - Scheduled task modifications
-  - Ransomware simulation events
+
 
 ### **MAQ-2 (Laravel)**
 - **Script**: `MAQ-2/configure-syslog.sh`
@@ -158,11 +148,7 @@ source:MAQ-3 AND message:"authentication failure"
 source:MAQ-2 AND message:"../" OR message:"..\\"
 ```
 
-### **Monitoring AD Events**
-```sql
-# Graylog Search
-source:MAQ-1 AND event_id:4625
-```
+
 
 ### **Detecting Ransomware**
 ```sql
@@ -203,9 +189,7 @@ docker-compose logs -f
 
 #### **3. Machine Configuration Issues**
 ```bash
-# Windows (MAQ-1)
-# Check Windows Event Forwarding
-wecutil qc
+
 
 # Linux (MAQ-2, MAQ-3)
 # Check rsyslog status
@@ -260,11 +244,7 @@ systemctl status system-log-monitor.service     # MAQ-3
 3. Monitor logs for attack patterns
 4. Create alerts for suspicious requests
 
-### **Scenario 3: Windows AD Attack**
-1. Configure MAQ-1 for SIEM
-2. Execute Kerberoasting attacks
-3. Monitor AD event logs
-4. Create alerts for privilege escalation
+
 
 ### **Scenario 4: Ransomware Simulation**
 1. Configure all machines for SIEM
@@ -304,7 +284,6 @@ systemctl status system-log-monitor.service     # MAQ-3
 - [ ] Test logs received
 
 ### **Machine Configuration**
-- [ ] MAQ-1 (Windows) configured
 - [ ] MAQ-2 (Laravel) configured
 - [ ] MAQ-3 (Linux) configured
 - [ ] Log forwarding working

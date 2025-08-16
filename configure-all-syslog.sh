@@ -78,10 +78,7 @@ function update_siem_ip() {
 # Update SIEM IP in all configuration files
 print_status "UPDATING SIEM IP IN CONFIGURATION FILES"
 
-# Update MAQ-1 (Windows)
-if [[ -f "MAQ-1/configure-syslog.ps1" ]]; then
-    update_siem_ip "MAQ-1/configure-syslog.ps1" "192.168.1.100" "$SIEM_IP"
-fi
+
 
 # Update MAQ-2 (Laravel)
 if [[ -f "MAQ-2/configure-syslog.sh" ]]; then
@@ -106,11 +103,7 @@ cat > siem-configuration-summary.md << EOF
 
 ## Machine Configurations
 
-### MAQ-1 (Windows Active Directory)
-- **Script**: MAQ-1/configure-syslog.ps1
-- **Status**: Ready to run
-- **Requirements**: Run as Administrator
-- **Logs Forwarded**: Windows Event Logs, Security Events, AD Events
+
 
 ### MAQ-2 (Laravel Web Application)
 - **Script**: MAQ-2/configure-syslog.sh
@@ -132,7 +125,7 @@ cat > siem-configuration-summary.md << EOF
 
 ## Next Steps
 1. Start SIEM central: cd siem-central && ./start-siem.sh
-2. Configure MAQ-1: Run MAQ-1/configure-syslog.ps1 as Administrator
+
 3. Configure MAQ-2: Run MAQ-2/configure-syslog.sh as root
 4. Configure MAQ-3: Run MAQ-3/configure-syslog.sh as root
 5. Access Graylog and configure inputs
@@ -195,7 +188,7 @@ echo "Username: admin"
 echo "Password: admin"
 echo ""
 echo "5. Next steps:"
-echo "   - Configure MAQ-1: Run MAQ-1/configure-syslog.ps1 as Administrator"
+
 echo "   - Configure MAQ-2: Run MAQ-2/configure-syslog.sh as root"
 echo "   - Configure MAQ-3: Run MAQ-3/configure-syslog.sh as root"
 echo "   - Send test logs: ./siem-central/test-log-sender.sh"
@@ -247,7 +240,7 @@ done
 
 echo ""
 echo "3. Checking configuration files..."
-for file in "MAQ-1/configure-syslog.ps1" "MAQ-2/configure-syslog.sh" "MAQ-3/configure-syslog.sh"; do
+for file in "MAQ-2/configure-syslog.sh" "MAQ-3/configure-syslog.sh"; do
     if [[ -f "$file" ]]; then
         echo "✅ $file exists"
     else
@@ -284,7 +277,7 @@ print_success "Verification script created"
 echo ""
 print_status "NEXT STEPS"
 echo "1. Start SIEM: ./quick-setup-siem.sh"
-echo "2. Configure MAQ-1: Run MAQ-1/configure-syslog.ps1 as Administrator"
+
 echo "3. Configure MAQ-2: Run MAQ-2/configure-syslog.sh as root"
 echo "4. Configure MAQ-3: Run MAQ-3/configure-syslog.sh as root"
 echo "5. Verify setup: ./verify-siem-config.sh"

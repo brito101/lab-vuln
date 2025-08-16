@@ -1,53 +1,57 @@
-# Lab Vuln - SOC Training Environment
+# Lab Vuln - Ambiente de Treinamento SOC
 
-## Overview
+## Visão Geral
 
-Lab Vuln is a comprehensive Security Operations Center (SOC) training environment designed for cybersecurity education and hands-on practice. The lab includes vulnerable machines, centralized logging, incident response scenarios, attack simulations, forensic artifacts, and SIEM integrations for complete SOC training experiences.
+Lab Vuln é um ambiente abrangente de treinamento de Centro de Operações de Segurança (SOC) projetado para educação em cibersegurança e prática hands-on. O laboratório inclui máquinas vulneráveis, logging centralizado, cenários de resposta a incidentes, simulações de ataque, artefatos forenses e integrações SIEM para experiências completas de treinamento SOC.
 
-## Architecture
+## Arquitetura
 
-The lab environment consists of:
+O ambiente do laboratório consiste em:
 
-- **MAQ-1**: Windows Active Directory with vulnerabilities
-- **MAQ-2**: Laravel web application with security flaws
-- **MAQ-3**: Linux infrastructure with misconfigurations
-- **SIEM Central**: Centralized logging and monitoring (Graylog, Elasticsearch, Wazuh)
-- **Attack Simulations**: Automated attack scenarios for training
-- **Forensic Artifacts**: Memory dumps, event logs, and disk images for analysis
-- **SIEM Integrations**: Support for Wazuh, ELK Stack, Splunk, Graylog, QRadar
+- **MAQ-2**: Aplicação web Laravel com falhas de segurança
+- **MAQ-3**: Infraestrutura Linux com configurações incorretas
+- **SIEM Central**: Logging centralizado e monitoramento (Graylog, Elasticsearch, Wazuh)
+- **Simulações de Ataque**: Cenários automatizados de ataque para treinamento
+- **Artefatos Forenses**: Dumps de memória, logs de eventos e imagens de disco para análise
+- **Integrações SIEM**: Suporte para Wazuh, ELK Stack, Splunk, Graylog, QRadar
 
-## Quick Start
+## Início Rápido
 
-### 1. Prerequisites
+### 1. Pré-requisitos
+
 ```bash
-# Install Docker and Docker Compose
+# Instalar Docker e Docker Compose
 sudo apt update
 sudo apt install docker.io docker-compose
 
-# Add user to docker group
+# Adicionar usuário ao grupo docker
 sudo usermod -aG docker $USER
 ```
 
-### 2. Start SIEM Central
+### 2. Iniciar SIEM Central
+
 ```bash
 cd siem-central
 docker-compose up -d
 ./configure-graylog.sh
 ```
 
-### 3. Configure Machines
+### 3. Configurar Máquinas
+
 ```bash
-# Configure all machines for SIEM forwarding
+# Configurar todas as máquinas para encaminhamento SIEM
 ./configure-all-syslog.sh
 ```
 
-### 4. Verify Setup
+### 4. Verificar Configuração
+
 ```bash
-# Verify SIEM configuration
+# Verificar configuração SIEM
 ./verify-siem-config.sh
 ```
 
-### 5. Run Attack Simulations
+### 5. Executar Simulações de Ataque
+
 ```bash
 cd attack-simulations
 ./brute-force-simulation.sh
@@ -55,326 +59,326 @@ cd attack-simulations
 ./ransomware-simulation.ps1
 ```
 
-### 6. Create Forensic Artifacts
-```bash
-# Windows artifacts (run as Administrator)
-cd MAQ-1 && ./create-forensic-artifacts.ps1
+### 6. Criar Artefatos Forenses
 
-# Linux artifacts (run as root)
+```bash
+# Artefatos Linux (executar como root)
 cd MAQ-3 && sudo ./create-forensic-artifacts.sh
 ```
 
-### 7. Setup Additional SIEM Platforms
+### 7. Configurar Plataformas SIEM Adicionais
+
 ```bash
-# Quick setup for different SIEM platforms
+# Configuração rápida para diferentes plataformas SIEM
 sudo ./siem-quick-setup.sh
 ```
 
-## Environment Reset
+## Reset do Ambiente
 
-For multiple training sessions, use the reset scripts to restore the environment to its initial state:
+Para múltiplas sessões de treinamento, use os scripts de reset para restaurar o ambiente ao seu estado inicial:
 
-### Complete Environment Reset
+### Reset Completo do Ambiente
+
 ```bash
 ./reset-environment.sh
 ```
 
-### Individual Machine Reset
-```bash
-# Windows machine
-cd MAQ-1 && ./reset-windows.ps1
+### Reset Individual de Máquina
 
-# Laravel machine
+```bash
+# Máquina Laravel
 cd MAQ-2 && sudo ./reset-laravel.sh
 
-# Linux machine
+# Máquina Linux
 cd MAQ-3 && sudo ./reset-linux.sh
 
 # SIEM central
 cd siem-central && sudo ./reset-siem.sh
 
-# Attack simulations
+# Simulações de ataque
 cd attack-simulations && ./reset-attacks.sh
 ```
 
-For detailed information about reset scripts, see [README-reset-scripts.md](README-reset-scripts.md).
+Para informações detalhadas sobre scripts de reset, veja [README-reset-scripts.md](README-reset-scripts.md).
 
-## Components
+## Componentes
 
-### MAQ-1 (Windows Active Directory)
-- Windows Server with Active Directory
-- Vulnerable configurations
-- Ransomware simulation capabilities
-- SIEM log forwarding
-- **Forensic Artifacts**: Memory dumps, .evtx files, registry hives
+### MAQ-2 (Aplicação Web Laravel)
 
-**Default Credentials:**
-- Administrator: `admin/admin123`
-- User: `user/password123`
+- Aplicação Laravel com vulnerabilidades
+- Endpoints de API com bypass de autenticação
+- Vulnerabilidades LFI
+- Integração SIEM
 
-### MAQ-2 (Laravel Web Application)
-- Laravel application with vulnerabilities
-- API endpoints with authentication bypass
-- LFI vulnerabilities
-- SIEM integration
+**Credenciais Padrão:**
 
-**Default Credentials:**
 - Admin: `admin/admin123`
-- User: `user/password123`
+- Usuário: `user/password123`
 
-**Deployment Instructions:** See [MAQ-2/deploy.sh](MAQ-2/deploy.sh) for automated deployment script using Docker/Sail. Use [MAQ-2/prepare-deploy-package.sh](MAQ-2/prepare-deploy-package.sh) to create a clean deployment package. For detailed configuration instructions, see [MAQ-2/README.md](MAQ-2/README.md).
+**Instruções de Implantação:** Veja [MAQ-2/deploy.sh](MAQ-2/deploy.sh) para script de implantação automatizada usando Docker/Sail. Use [MAQ-2/prepare-deploy-package.sh](MAQ-2/prepare-deploy-package.sh) para criar um pacote de implantação limpo. Para instruções de configuração detalhadas, veja [MAQ-2/README.md](MAQ-2/README.md).
 
-### MAQ-3 (Linux Infrastructure)
-- Linux server with misconfigurations
-- SSH, FTP, and Samba services
-- Weak password policies
-- Security monitoring
-- **Forensic Artifacts**: Memory dumps, system logs, disk images
+### MAQ-3 (Infraestrutura Linux)
 
-**Default Credentials:**
+- Servidor Linux com configurações incorretas
+- Serviços SSH, FTP e Samba
+- Políticas de senha fracas
+- Monitoramento de segurança
+- **Artefatos Forenses**: Dumps de memória, logs do sistema, imagens de disco
+
+**Credenciais Padrão:**
+
 - Root: `root/root123`
-- User: `user/password123`
+- Usuário: `user/password123`
 
-**Configuration Instructions:** See [MAQ-3/README.md](MAQ-3/README.md) for detailed setup and configuration instructions.
+**Instruções de Configuração:** Veja [MAQ-3/README.md](MAQ-3/README.md) para instruções detalhadas de configuração e configuração.
 
 ### SIEM Central
-- Graylog for log aggregation
-- Elasticsearch for data storage
-- Wazuh for security monitoring
-- Logstash for data processing
 
-**Access:**
-- Graylog: http://192.168.1.102:9000 (admin/admin123)
-- Wazuh: http://192.168.1.102:5601 (admin/admin123)
+- Graylog para agregação de logs
+- Elasticsearch para armazenamento de dados
+- Wazuh para monitoramento de segurança
+- Logstash para processamento de dados
 
-## Training Scenarios
+**Acesso:**
 
-### Incident Response Scenarios
-See [scenarios.md](scenarios.md) for detailed incident response scenarios:
+- Graylog: <http://192.168.1.102:9000> (admin/admin123)
+- Wazuh: <http://192.168.1.102:5601> (admin/admin123)
 
-- **Beginner**: Brute force detection, simple malware alerts
-- **Intermediate**: Advanced persistent threats, data exfiltration
-- **Advanced**: Sophisticated attacks, incident coordination
+## Cenários de Treinamento
 
-### Attack Simulations
-Automated attack simulations for training:
+### Cenários de Resposta a Incidentes
 
-- **Brute Force**: SSH, FTP, and web application attacks
-- **LFI**: Local File Inclusion vulnerabilities
-- **Ransomware**: File encryption simulation
+Veja [scenarios.md](scenarios.md) para cenários detalhados de resposta a incidentes:
 
-See [attack-simulations/README.md](attack-simulations/README.md) for details.
+- **Iniciante**: Detecção de brute force, alertas simples de malware
+- **Intermediário**: Ameaças persistentes avançadas, exfiltração de dados
+- **Avançado**: Ataques sofisticados, coordenação de incidentes
 
-### Forensic Analysis
-Comprehensive forensic artifacts for analysis exercises:
+### Simulações de Ataque
 
-- **Memory Analysis**: Process dumps, kernel memory
-- **Event Logs**: Windows .evtx files, Linux system logs
-- **Disk Images**: Logical copies of important directories
-- **Timeline Analysis**: File system timelines
-- **Network Artifacts**: Connection logs, firewall rules
+Simulações automatizadas de ataque para treinamento:
 
-See [forensic-analysis-guide.md](forensic-analysis-guide.md) for detailed analysis instructions.
+- **Brute Force**: Ataques SSH, FTP e aplicação web
+- **LFI**: Vulnerabilidades de Inclusão Local de Arquivo
+- **Ransomware**: Simulação de criptografia de arquivos
 
-### SIEM Integrations
-Multiple SIEM platform integrations for comprehensive training:
+Veja [attack-simulations/README.md](attack-simulations/README.md) para detalhes.
 
-- **Wazuh**: Open-source SIEM with agent-based monitoring
-- **ELK Stack**: Elasticsearch, Logstash, Kibana for big data analysis
-- **Splunk**: Enterprise SIEM with advanced analytics
-- **Graylog**: Open-source log management platform
-- **QRadar**: IBM enterprise SIEM with AI capabilities
+### Análise Forense
 
-See [siem-integration-examples.md](siem-integration-examples.md) for detailed integration instructions and [siem-comparison-guide.md](siem-comparison-guide.md) for platform comparisons.
+Artefatos forenses abrangentes para exercícios de análise:
 
-## Documentation
+- **Análise de Memória**: Dumps de processo, memória do kernel
+- **Logs de Eventos**: Arquivos .evtx do Windows, logs do sistema Linux
+- **Imagens de Disco**: Cópias lógicas de diretórios importantes
+- **Análise de Linha do Tempo**: Linhas do tempo do sistema de arquivos
+- **Artefatos de Rede**: Logs de conexão, regras de firewall
 
-- [README-reset-scripts.md](README-reset-scripts.md) - Reset scripts documentation
-- [scenarios.md](scenarios.md) - Incident response scenarios
-- [attack-simulations/README.md](attack-simulations/README.md) - Attack simulation guide
-- [siem-integration-guide.md](siem-integration-guide.md) - SIEM setup and configuration
-- [siem-integration-examples.md](siem-integration-examples.md) - SIEM integration examples
-- [siem-comparison-guide.md](siem-comparison-guide.md) - SIEM platform comparison
-- [forensic-analysis-guide.md](forensic-analysis-guide.md) - Forensic analysis guide
-- [default-credentials.md](default-credentials.md) - Default credentials for all machines
+Veja [forensic-analysis-guide.md](forensic-analysis-guide.md) para instruções detalhadas de análise.
 
-## Network Configuration
+### Integrações SIEM
 
-### IP Addresses
+Múltiplas integrações de plataforma SIEM para treinamento abrangente:
+
+- **Wazuh**: SIEM open-source com monitoramento baseado em agente
+- **ELK Stack**: Elasticsearch, Logstash, Kibana para análise de big data
+- **Splunk**: SIEM empresarial com analytics avançados
+- **Graylog**: Plataforma de gerenciamento de logs open-source
+- **QRadar**: SIEM empresarial IBM com capacidades de IA
+
+Veja [siem-integration-examples.md](siem-integration-examples.md) para instruções detalhadas de integração e [siem-comparison-guide.md](siem-comparison-guide.md) para comparações de plataformas.
+
+## Documentação
+
+- [README-reset-scripts.md](README-reset-scripts.md) - Documentação dos scripts de reset
+- [scenarios.md](scenarios.md) - Cenários de resposta a incidentes
+- [attack-simulations/README.md](attack-simulations/README.md) - Guia de simulação de ataque
+- [siem-integration-guide.md](siem-integration-guide.md) - Configuração e configuração SIEM
+- [siem-integration-examples.md](siem-integration-examples.md) - Exemplos de integração SIEM
+- [siem-comparison-guide.md](siem-comparison-guide.md) - Comparação de plataformas SIEM
+- [forensic-analysis-guide.md](forensic-analysis-guide.md) - Guia de análise forense
+- [default-credentials.md](default-credentials.md) - Credenciais padrão para todas as máquinas
+
+## Configuração de Rede
+
+### Endereços IP
+
 - **SIEM Central**: 192.168.1.102
-- **MAQ-1 (Windows)**: 192.168.1.10
 - **MAQ-2 (Laravel)**: 192.168.1.20
 - **MAQ-3 (Linux)**: 192.168.1.30
 
-### Ports
+### Portas
+
 - **Graylog**: 9000 (Web), 12201 (Syslog)
-- **Wazuh**: 5601 (Web), 1514 (Agent)
+- **Wazuh**: 5601 (Web), 1514 (Agente)
 - **Elasticsearch**: 9200 (HTTP), 9300 (Transport)
 - **Kibana**: 5601 (Web)
-- **Splunk**: 8000 (Web), 8089 (Management)
+- **Splunk**: 8000 (Web), 8089 (Gerenciamento)
 - **SSH**: 22
 - **FTP**: 21
 - **Samba**: 445, 139
 
-## Forensic Artifacts
+## Artefatos Forenses
 
-### Windows Artifacts (MAQ-1)
-- **Memory Dumps**: Process memory dumps (.dmp files)
-- **Event Logs**: Security, Application, System (.evtx files)
-- **Registry Hives**: SYSTEM, SOFTWARE, SAM, SECURITY
-- **Network Artifacts**: ARP tables, routing tables, connections
-- **Timeline**: File system timeline data
+### Artefatos Linux (MAQ-3)
 
-### Linux Artifacts (MAQ-3)
-- **Memory Dumps**: Kernel and process memory dumps (.raw files)
-- **System Logs**: Authentication, system, service logs
-- **Audit Logs**: Audit trail information
-- **Network Artifacts**: Network connections, firewall rules
-- **Process Information**: Process lists, open files, loaded modules
-- **Timeline**: File system timeline data
+- **Dumps de Memória**: Dumps de memória do kernel e processo (.raw files)
+- **Logs do Sistema**: Logs de autenticação, sistema, serviço
+- **Logs de Auditoria**: Informações de trilha de auditoria
+- **Artefatos de Rede**: Conexões de rede, regras de firewall
+- **Informações de Processo**: Listas de processo, arquivos abertos, módulos carregados
+- **Linha do Tempo**: Dados de linha do tempo do sistema de arquivos
 
-### Analysis Tools
-- **Memory Analysis**: Volatility, Rekall
-- **Event Logs**: Event Viewer, Log Parser
-- **Registry**: Registry Explorer, RegRipper
-- **Timeline**: Plaso, log2timeline
-- **Network**: Wireshark, NetworkMiner
-- **File System**: The Sleuth Kit, Autopsy
+### Ferramentas de Análise
 
-## SIEM Platform Support
+- **Análise de Memória**: Volatility, Rekall
+- **Logs de Eventos**: Visualizador de Eventos, Log Parser
+- **Linha do Tempo**: Plaso, log2timeline
+- **Rede**: Wireshark, NetworkMiner
+- **Sistema de Arquivos**: The Sleuth Kit, Autopsy
 
-### Supported Platforms
-- **Wazuh**: Open-source SIEM with comprehensive monitoring
-- **ELK Stack**: Big data analytics and visualization
-- **Splunk**: Enterprise-grade SIEM with advanced features
-- **Graylog**: Open-source log management
-- **QRadar**: IBM enterprise SIEM with AI capabilities
+## Suporte a Plataformas SIEM
 
-### Platform Features
-- **Real-time Monitoring**: All platforms support real-time log analysis
-- **Alert Management**: Customizable alerting and notification systems
-- **Threat Intelligence**: Integration with threat intelligence feeds
-- **Compliance**: Built-in compliance monitoring and reporting
-- **Forensic Analysis**: Advanced search and correlation capabilities
+### Plataformas Suportadas
 
-### Quick Setup
+- **Wazuh**: SIEM open-source com monitoramento abrangente
+- **ELK Stack**: Analytics e visualização de big data
+- **Splunk**: SIEM de nível empresarial com recursos avançados
+- **Graylog**: Gerenciamento de logs open-source
+- **QRadar**: SIEM empresarial IBM com capacidades de IA
+
+### Recursos da Plataforma
+
+- **Monitoramento em Tempo Real**: Todas as plataformas suportam análise de logs em tempo real
+- **Gerenciamento de Alertas**: Sistemas de alerta e notificação personalizáveis
+- **Inteligência de Ameaças**: Integração com feeds de inteligência de ameaças
+- **Conformidade**: Monitoramento e relatórios de conformidade integrados
+- **Análise Forense**: Capacidades avançadas de busca e correlação
+
+### Configuração Rápida
+
 ```bash
-# Setup any SIEM platform
+# Configurar qualquer plataforma SIEM
 sudo ./siem-quick-setup.sh
 
-# Choose from menu:
+# Escolher do menu:
 # 1. Wazuh
 # 2. ELK Stack
 # 3. Graylog
 # 4. Splunk
-# 5. Multi-SIEM Environment
+# 5. Ambiente Multi-SIEM
 ```
 
-## Security Considerations
+## Considerações de Segurança
 
-⚠️ **IMPORTANT**: This is a training environment with intentional vulnerabilities. Do not deploy in production environments.
+⚠️ **IMPORTANTE**: Este é um ambiente de treinamento com vulnerabilidades intencionais. Não implante em ambientes de produção.
 
-### Safety Measures
-- Isolated network environment
-- No internet access for vulnerable machines
-- Controlled attack simulations
-- Reset capabilities for clean state
-- Forensic artifacts for analysis training
-- Multi-SIEM support for comprehensive monitoring
+### Medidas de Segurança
 
-### Best Practices
-- Use dedicated training network
-- Regular environment resets
-- Monitor for unauthorized access
-- Backup important data before resets
-- Maintain chain of custody for forensic artifacts
-- Test SIEM integrations thoroughly
+- Ambiente de rede isolado
+- Sem acesso à internet para máquinas vulneráveis
+- Simulações de ataque controladas
+- Capacidades de reset para estado limpo
+- Artefatos forenses para treinamento de análise
+- Suporte multi-SIEM para monitoramento abrangente
 
-## Troubleshooting
+### Melhores Práticas
 
-### Common Issues
+- Use rede de treinamento dedicada
+- Resets regulares do ambiente
+- Monitore para acesso não autorizado
+- Faça backup de dados importantes antes dos resets
+- Mantenha cadeia de custódia para artefatos forenses
+- Teste integrações SIEM completamente
 
-#### Docker Issues
+## Solução de Problemas
+
+### Problemas Comuns
+
+#### Problemas Docker
+
 ```bash
-# Check Docker status
+# Verificar status Docker
 sudo systemctl status docker
 
-# Restart Docker
+# Reiniciar Docker
 sudo systemctl restart docker
 ```
 
-#### Network Issues
+#### Problemas de Rede
+
 ```bash
-# Check network connectivity
+# Verificar conectividade de rede
 ping 192.168.1.102
 
-# Check Docker network
+# Verificar rede Docker
 docker network ls
 ```
 
-#### SIEM Issues
+#### Problemas SIEM
+
 ```bash
-# Check SIEM containers
+# Verificar containers SIEM
 cd siem-central && docker-compose ps
 
-# Check SIEM logs
+# Verificar logs SIEM
 docker-compose logs
 
-# Test SIEM connectivity
+# Testar conectividade SIEM
 ./siem-tests/test-wazuh.sh
 ./siem-tests/test-elk.sh
 ./siem-tests/test-graylog.sh
 ```
 
-#### Forensic Artifacts Issues
+#### Problemas de Artefatos Forenses
+
 ```bash
-# Check artifact creation
-ls -la MAQ-1/ForensicArtifacts/
+# Verificar criação de artefatos
 ls -la MAQ-3/forensic-artifacts/
 
-# Verify artifact integrity
-md5sum MAQ-1/ForensicArtifacts/*.raw
+# Verificar integridade de artefatos
 md5sum MAQ-3/forensic-artifacts/*.raw
 ```
 
-### Reset Environment
-If the environment becomes unstable:
+### Reset do Ambiente
+
+Se o ambiente se tornar instável:
 
 ```bash
-# Complete reset
+# Reset completo
 ./reset-environment.sh
 
-# Restart services
+# Reiniciar serviços
 cd siem-central && docker-compose up -d
 ./configure-all-syslog.sh
 ```
 
-## Contributing
+## Contribuindo
 
-To contribute to Lab Vuln:
+Para contribuir com o Lab Vuln:
 
-1. Follow security best practices
-2. Test all changes in isolated environment
-3. Update documentation
-4. Include reset capabilities for new components
-5. Add forensic artifacts for new machines
-6. Support additional SIEM platforms
+1. Siga as melhores práticas de segurança
+2. Teste todas as mudanças em ambiente isolado
+3. Atualize a documentação
+4. Inclua capacidades de reset para novos componentes
+5. Adicione artefatos forenses para novas máquinas
+6. Suporte plataformas SIEM adicionais
 
-## License
+## Licença
 
-This project is for educational purposes only. Use responsibly and only in controlled training environments.
+Este projeto é apenas para fins educacionais. Use de forma responsável e apenas em ambientes de treinamento controlados.
 
-## Support
+## Suporte
 
-For issues and questions:
+Para problemas e perguntas:
 
-1. Check the troubleshooting section
-2. Review log files
-3. Consult documentation
-4. Use reset scripts if needed
-5. Refer to forensic analysis guide for artifact analysis
-6. Check SIEM integration guides for platform-specific issues
+1. Verifique a seção de solução de problemas
+2. Revise arquivos de log
+3. Consulte a documentação
+4. Use scripts de reset se necessário
+5. Consulte o guia de análise forense para análise de artefatos
+6. Verifique guias de integração SIEM para problemas específicos de plataforma
 
 ---
 
-**Lab Vuln** - Comprehensive SOC Training Environment with Forensic Analysis and Multi-SIEM Capabilities 
+**Lab Vuln** - Ambiente Abrangente de Treinamento SOC com Análise Forense e Capacidades Multi-SIEM

@@ -43,7 +43,7 @@ echo "Username: admin"
 echo "Password: admin"
 echo ""
 echo "5. Next steps:"
-echo "   - Configure MAQ-1: Run MAQ-1/configure-syslog.ps1 as Administrator"
+
 echo "   - Configure MAQ-2: Run MAQ-2/configure-syslog.sh as root"
 echo "   - Configure MAQ-3: Run MAQ-3/configure-syslog.sh as root"
 echo "   - Send test logs: ./siem-central/test-log-sender.sh" 

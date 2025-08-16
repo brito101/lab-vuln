@@ -1,35 +1,22 @@
-# Default Credentials - Lab Vuln
+# Credenciais Padrão - Lab Vuln
 
 Este arquivo lista as credenciais padrão de todas as máquinas do laboratório para facilitar o acesso e o treinamento.
 
 ---
 
-## MAQ-1 - Windows Active Directory (Vulnerable Domain Controller)
-- **Administrator**: Administrator / P@ssw0rd123!
-- **admin**: admin / admin123
-- **user1**: user1 / password
-- **test**: test / test123
-- **guest**: guest / guest
-- **admin2**: admin2 / admin
-- **service**: service / service123
-- **backup**: backup / backup
-- **webadmin**: webadmin / web123
-
----
-
-## MAQ-2 - Laravel Web Application
+## MAQ-2 - Aplicação Web Laravel
 - **MySQL root**: root / root
 - **Laravel Admin**: admin@labvuln.local / admin123
 - **Laravel User**: user@labvuln.local / user123
-- **.env**: (ver arquivo .env para APP_KEY e DB credentials)
+- **.env**: (ver arquivo .env para APP_KEY e credenciais DB)
 
 ---
 
-## MAQ-3 - Linux Debian (Infrastructure/File Server)
+## MAQ-3 - Linux Debian (Infraestrutura/Servidor de Arquivos)
 - **root**: toor
 - **ftpuser**: password123
 - **smbuser**: password123
-- **anonymous FTP**: (no password)
+- **FTP anônimo**: (sem senha)
 
 ---
 

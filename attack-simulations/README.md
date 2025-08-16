@@ -1,328 +1,328 @@
-# Attack Simulation Scripts - Lab Vuln
+# Scripts de Simulação de Ataque - Lab Vuln
 
-## 🎯 **Overview**
+## 🎯 **Visão Geral**
 
-This directory contains automated attack simulation scripts for the Lab Vuln environment. These scripts are designed to generate realistic attack patterns for SOC analyst training and SIEM detection testing.
+Este diretório contém scripts automatizados de simulação de ataque para o ambiente Lab Vuln. Estes scripts são projetados para gerar padrões de ataque realistas para treinamento de analistas SOC e teste de detecção SIEM.
 
-## ⚠️ **Important Warnings**
+## ⚠️ **Avisos Importantes**
 
-- **All scripts are for educational purposes only**
-- **Never use these scripts in production environments**
-- **Always run in isolated lab environments**
-- **Follow ethical hacking principles**
-- **Document all activities**
+- **Todos os scripts são apenas para fins educacionais**
+- **Nunca use estes scripts em ambientes de produção**
+- **Sempre execute em ambientes de laboratório isolados**
+- **Siga princípios de hacking ético**
+- **Documente todas as atividades**
 
-## 📋 **Available Simulations**
+## 📋 **Simulações Disponíveis**
 
-### **🟢 Beginner Scenarios**
+### **🟢 Cenários Iniciantes**
 
-#### **1. Brute Force Attack (`brute-force-simulation.sh`)**
-- **Target**: MAQ-3 (SSH Service)
-- **Duration**: 5 minutes
-- **Technique**: SSH brute force with common credentials
-- **Detection**: Monitor SSH authentication failures
-- **Response**: Block source IP, implement rate limiting
+#### **1. Ataque de Força Bruta (`brute-force-simulation.sh`)**
+- **Alvo**: MAQ-3 (Serviço SSH)
+- **Duração**: 5 minutos
+- **Técnica**: Força bruta SSH com credenciais comuns
+- **Detecção**: Monitorar falhas de autenticação SSH
+- **Resposta**: Bloquear IP de origem, implementar limitação de taxa
 
-**Usage:**
+**Uso:**
 ```bash
 cd attack-simulations
 ./brute-force-simulation.sh
 ```
 
-**SIEM Detection:**
+**Detecção SIEM:**
 ```sql
 source:MAQ-3 AND message:"authentication failure"
 source:MAQ-3 AND message:"Failed password"
 ```
 
-#### **2. LFI Attack (`lfi-simulation.sh`)**
-- **Target**: MAQ-2 (Laravel Web Application)
-- **Duration**: 10 minutes
-- **Technique**: Local File Inclusion via path traversal
-- **Detection**: Monitor web server logs for path traversal
-- **Response**: Block IP, patch vulnerabilities, add WAF rules
+#### **2. Ataque LFI (`lfi-simulation.sh`)**
+- **Alvo**: MAQ-2 (Aplicação Web Laravel)
+- **Duração**: 10 minutos
+- **Técnica**: Inclusão Local de Arquivo via travessia de caminho
+- **Detecção**: Monitorar logs do servidor web para travessia de caminho
+- **Resposta**: Bloquear IP, corrigir vulnerabilidades, adicionar regras WAF
 
-**Usage:**
+**Uso:**
 ```bash
 cd attack-simulations
 ./lfi-simulation.sh
 ```
 
-**SIEM Detection:**
+**Detecção SIEM:**
 ```sql
 source:MAQ-2 AND message:"../" OR message:"..\\"
 source:MAQ-2 AND message:"file_get_contents" AND message:"error"
 ```
 
-### **🔴 Advanced Scenarios**
+### **🔴 Cenários Avançados**
 
-#### **3. Ransomware Simulation (`ransomware-simulation.ps1`)**
-- **Target**: MAQ-1 (Windows Machines)
-- **Duration**: 5 minutes
-- **Technique**: File modification, registry changes, C2 communication
-- **Detection**: Monitor file changes, process creation, network connections
-- **Response**: Isolate systems, alert IR team, restore from backups
+#### **3. Simulação de Ransomware (`ransomware-simulation.ps1`)**
+- **Alvo**: Máquinas Windows (requer ambiente Windows)
+- **Duração**: 5 minutos
+- **Técnica**: Modificação de arquivos, mudanças de registro, comunicação C2
+- **Detecção**: Monitorar mudanças de arquivo, criação de processo, conexões de rede
+- **Resposta**: Isolar sistemas, alertar equipe de IR, restaurar de backups
 
-**Usage:**
+**Uso:**
 ```powershell
 cd attack-simulations
 .\ransomware-simulation.ps1
 ```
 
-**SIEM Detection:**
+**Detecção SIEM:**
 ```sql
-source:MAQ-1 AND message:"encrypted" OR message:"ransom"
-source:MAQ-1 AND event_id:4688 AND message:"ransomware"
-source:MAQ-1 AND event_id:4657 AND message:"RansomwareSim"
+source:Windows AND message:"encrypted" OR message:"ransom"
+source:Windows AND event_id:4688 AND message:"ransomware"
+source:Windows AND event_id:4657 AND message:"RansomwareSim"
 ```
 
-## 🚀 **Quick Start**
+## 🚀 **Início Rápido**
 
-### **Prerequisites**
-1. SIEM configured and running
-2. All machines configured for log forwarding
-3. Network connectivity between machines
-4. Appropriate permissions (admin/root)
+### **Pré-requisitos**
+1. SIEM configurado e funcionando
+2. Todas as máquinas configuradas para encaminhamento de logs
+3. Conectividade de rede entre máquinas
+4. Permissões apropriadas (admin/root)
 
-### **Setup Instructions**
+### **Instruções de Configuração**
 ```bash
-# 1. Configure SIEM and machines
+# 1. Configurar SIEM e máquinas
 ./configure-all-syslog.sh
 ./quick-setup-siem.sh
 
-# 2. Verify setup
+# 2. Verificar configuração
 ./verify-siem-config.sh
 
-# 3. Run simulations
+# 3. Executar simulações
 cd attack-simulations
 ./brute-force-simulation.sh
 ./lfi-simulation.sh
-# For Windows: .\ransomware-simulation.ps1
+# Para Windows: .\ransomware-simulation.ps1
 ```
 
-### **Execution Order**
-1. **Start SIEM** and verify it's working
-2. **Configure dashboards** in Graylog
-3. **Run simulation** in one terminal
-4. **Monitor SIEM** in another terminal
-5. **Document findings** and response procedures
+### **Ordem de Execução**
+1. **Iniciar SIEM** e verificar se está funcionando
+2. **Configurar dashboards** no Graylog
+3. **Executar simulação** em um terminal
+4. **Monitorar SIEM** em outro terminal
+5. **Documentar descobertas** e procedimentos de resposta
 
-## 📊 **Monitoring and Detection**
+## 📊 **Monitoramento e Detecção**
 
-### **SIEM Dashboards**
-Create these dashboards in Graylog for effective monitoring:
+### **Dashboards SIEM**
+Crie estes dashboards no Graylog para monitoramento eficaz:
 
-#### **Security Events Dashboard**
-- Failed authentication attempts
-- Suspicious file access
-- Process creation events
-- Network connections
+#### **Dashboard de Eventos de Segurança**
+- Tentativas de autenticação falhadas
+- Acesso suspeito a arquivos
+- Eventos de criação de processo
+- Conexões de rede
 
-#### **Attack Detection Dashboard**
-- Brute force patterns
-- LFI/RFI attempts
-- Ransomware indicators
-- C2 communication
+#### **Dashboard de Detecção de Ataque**
+- Padrões de força bruta
+- Tentativas LFI/RFI
+- Indicadores de ransomware
+- Comunicação C2
 
-#### **System Performance Dashboard**
-- Resource usage
-- Service availability
-- Network traffic
-- Error rates
+#### **Dashboard de Performance do Sistema**
+- Uso de recursos
+- Disponibilidade de serviço
+- Tráfego de rede
+- Taxas de erro
 
-### **Alert Rules**
-Configure these alert rules in Graylog:
+### **Regras de Alerta**
+Configure estas regras de alerta no Graylog:
 
-#### **Brute Force Alert**
+#### **Alerta de Força Bruta**
 ```javascript
-// Alert when multiple failed SSH attempts detected
+// Alertar quando múltiplas tentativas SSH falhadas detectadas
 {
   "condition": "count > 10",
   "field": "source_ip",
   "time": "5 minutes",
-  "message": "Possible brute force attack detected"
+  "message": "Possível ataque de força bruta detectado"
 }
 ```
 
-#### **LFI Alert**
+#### **Alerta LFI**
 ```javascript
-// Alert when path traversal detected
+// Alertar quando travessia de caminho detectada
 {
   "condition": "message contains '../'",
   "field": "source",
   "time": "1 minute",
-  "message": "LFI attack attempt detected"
+  "message": "Tentativa de ataque LFI detectada"
 }
 ```
 
-#### **Ransomware Alert**
+#### **Alerta de Ransomware**
 ```javascript
-// Alert when encryption indicators detected
+// Alertar quando indicadores de criptografia detectados
 {
   "condition": "message contains 'encrypted'",
   "field": "source",
   "time": "1 minute",
-  "message": "Ransomware activity detected"
+  "message": "Atividade de ransomware detectada"
 }
 ```
 
-## 📝 **Documentation and Logging**
+## 📝 **Documentação e Logging**
 
-### **Log Files**
-Each simulation creates detailed log files:
+### **Arquivos de Log**
+Cada simulação cria arquivos de log detalhados:
 - `brute-force-simulation-YYYYMMDD-HHMMSS.log`
 - `lfi-simulation-YYYYMMDD-HHMMSS.log`
 - `ransomware-simulation-YYYYMMDD-HHMMSS.log`
 
-### **Log Content**
-- Attack parameters and configuration
-- Attempt details and results
-- Success/failure statistics
-- Timestamps and durations
-- SIEM detection instructions
+### **Conteúdo do Log**
+- Parâmetros de ataque e configuração
+- Detalhes de tentativa e resultados
+- Estatísticas de sucesso/falha
+- Timestamps e durações
+- Instruções de detecção SIEM
 
-### **Analysis Reports**
-After each simulation, create:
-1. **Detection Report**: What was detected and when
-2. **Response Report**: Actions taken and their effectiveness
-3. **Lessons Learned**: Improvements for next time
-4. **Recommendations**: Security enhancements
+### **Relatórios de Análise**
+Após cada simulação, crie:
+1. **Relatório de Detecção**: O que foi detectado e quando
+2. **Relatório de Resposta**: Ações tomadas e sua eficácia
+3. **Lições Aprendidas**: Melhorias para a próxima vez
+4. **Recomendações**: Aprimoramentos de segurança
 
-## 🛠️ **Customization**
+## 🛠️ **Personalização**
 
-### **Modifying Attack Parameters**
-Edit the configuration variables in each script:
+### **Modificando Parâmetros de Ataque**
+Edite as variáveis de configuração em cada script:
 
-#### **Brute Force Script**
+#### **Script de Força Bruta**
 ```bash
-TARGET_IP="192.168.1.103"  # Change target IP
-ATTACK_DURATION=300         # Change duration
-DELAY_BETWEEN_ATTEMPTS=2    # Change delay
+TARGET_IP="192.168.1.103"  # Mudar IP alvo
+ATTACK_DURATION=300         # Mudar duração
+DELAY_BETWEEN_ATTEMPTS=2    # Mudar delay
 ```
 
-#### **LFI Script**
+#### **Script LFI**
 ```bash
-TARGET_URL="http://192.168.1.102:8000"  # Change target URL
-ATTACK_DURATION=600                      # Change duration
+TARGET_URL="http://192.168.1.102:8000"  # Mudar URL alvo
+ATTACK_DURATION=600                      # Mudar duração
 ```
 
-#### **Ransomware Script**
+#### **Script de Ransomware**
 ```powershell
-$SimulationDuration = 300  # Change duration
-$TargetDirectories = @("C:\Users\Public\Documents")  # Change targets
+$SimulationDuration = 300  # Mudar duração
+$TargetDirectories = @("C:\Users\Public\Documents")  # Mudar alvos
 ```
 
-### **Adding New Simulations**
-To create a new simulation:
+### **Adicionando Novas Simulações**
+Para criar uma nova simulação:
 
-1. **Create script** with proper headers and warnings
-2. **Add configuration** variables at the top
-3. **Include logging** functionality
-4. **Add SIEM detection** instructions
-5. **Document response** procedures
-6. **Test thoroughly** in lab environment
+1. **Criar script** com cabeçalhos e avisos apropriados
+2. **Adicionar configuração** variáveis no topo
+3. **Incluir funcionalidade** de logging
+4. **Adicionar instruções** de detecção SIEM
+5. **Documentar procedimentos** de resposta
+6. **Testar completamente** em ambiente de laboratório
 
-## 🔧 **Troubleshooting**
+## 🔧 **Solução de Problemas**
 
-### **Common Issues**
+### **Problemas Comuns**
 
-#### **Scripts Not Working**
-- Check target accessibility
-- Verify network connectivity
-- Ensure proper permissions
-- Check log files for errors
+#### **Scripts Não Funcionando**
+- Verificar acessibilidade do alvo
+- Verificar conectividade de rede
+- Garantir permissões apropriadas
+- Verificar arquivos de log para erros
 
-#### **SIEM Not Detecting**
-- Verify log forwarding is working
-- Check SIEM inputs are configured
-- Test with manual log sending
-- Review search queries
+#### **SIEM Não Detectando**
+- Verificar se encaminhamento de logs está funcionando
+- Verificar se entradas SIEM estão configuradas
+- Testar com envio manual de logs
+- Revisar consultas de busca
 
-#### **False Positives**
-- Adjust detection thresholds
-- Fine-tune search queries
-- Update alert rules
-- Document false positive patterns
+#### **Falsos Positivos**
+- Ajustar limiares de detecção
+- Refinar consultas de busca
+- Atualizar regras de alerta
+- Documentar padrões de falso positivo
 
-### **Debugging Commands**
+### **Comandos de Debug**
 ```bash
-# Test target connectivity
+# Testar conectividade do alvo
 ping <target_ip>
 nc -z <target_ip> <port>
 
-# Test SIEM connectivity
+# Testar conectividade SIEM
 echo "<134>$(date '+%b %d %H:%M:%S') test: Test message" | nc -u localhost 1514
 
-# Check log forwarding
+# Verificar encaminhamento de logs
 systemctl status laravel-log-forwarder.service  # MAQ-2
 systemctl status system-log-monitor.service     # MAQ-3
 
-# View simulation logs
+# Visualizar logs de simulação
 tail -f *.log
 ```
 
-## 📚 **Learning Objectives**
+## 📚 **Objetivos de Aprendizado**
 
-### **Technical Skills**
-- Log analysis and correlation
-- Attack pattern recognition
-- Incident response procedures
-- SIEM configuration and monitoring
+### **Habilidades Técnicas**
+- Análise de logs e correlação
+- Reconhecimento de padrões de ataque
+- Procedimentos de resposta a incidentes
+- Configuração e monitoramento SIEM
 
-### **Soft Skills**
-- Communication under pressure
-- Team coordination
-- Decision making
-- Documentation
+### **Habilidades Interpessoais**
+- Comunicação sob pressão
+- Coordenação de equipe
+- Tomada de decisão
+- Documentação
 
-### **Security Knowledge**
-- Attack methodologies
-- Detection techniques
-- Response strategies
-- Prevention measures
+### **Conhecimento de Segurança**
+- Metodologias de ataque
+- Técnicas de detecção
+- Estratégias de resposta
+- Medidas de prevenção
 
-## 🚨 **Safety Guidelines**
+## 🚨 **Diretrizes de Segurança**
 
-### **Before Running Simulations**
-1. **Verify lab isolation**
-2. **Check all systems are lab-only**
-3. **Ensure proper permissions**
-4. **Document start time**
-5. **Prepare monitoring tools**
+### **Antes de Executar Simulações**
+1. **Verificar isolamento do laboratório**
+2. **Verificar se todos os sistemas são apenas para laboratório**
+3. **Garantir permissões apropriadas**
+4. **Documentar hora de início**
+5. **Preparar ferramentas de monitoramento**
 
-### **During Simulations**
-1. **Monitor SIEM continuously**
-2. **Document all activities**
-3. **Follow response procedures**
-4. **Communicate with team**
-5. **Preserve evidence**
+### **Durante Simulações**
+1. **Monitorar SIEM continuamente**
+2. **Documentar todas as atividades**
+3. **Seguir procedimentos de resposta**
+4. **Comunicar com a equipe**
+5. **Preservar evidências**
 
-### **After Simulations**
-1. **Complete incident reports**
-2. **Analyze detection effectiveness**
-3. **Identify improvements**
-4. **Update procedures**
-5. **Share lessons learned**
+### **Após Simulações**
+1. **Completar relatórios de incidente**
+2. **Analisar eficácia da detecção**
+3. **Identificar melhorias**
+4. **Atualizar procedimentos**
+5. **Compartilhar lições aprendidas**
 
-## 📞 **Support**
+## 📞 **Suporte**
 
-### **Documentation**
-- **Scenarios**: `../scenarios.md`
-- **SIEM Integration**: `../SIEM-INTEGRATION-GUIDE.md`
-- **Machine Configs**: `../MAQ-X/README.md`
+### **Documentação**
+- **Cenários**: `../scenarios.md`
+- **Integração SIEM**: `../SIEM-INTEGRATION-GUIDE.md`
+- **Configs de Máquina**: `../MAQ-X/README.md`
 
 ### **Scripts**
-- **Configuration**: `../configure-all-syslog.sh`
-- **SIEM Setup**: `../quick-setup-siem.sh`
-- **Verification**: `../verify-siem-config.sh`
+- **Configuração**: `../configure-all-syslog.sh`
+- **Configuração SIEM**: `../quick-setup-siem.sh`
+- **Verificação**: `../verify-siem-config.sh`
 
-### **Emergency Procedures**
-- **Stop all activities** if something goes wrong
-- **Document what happened**
-- **Notify instructor/supervisor**
-- **Follow incident response procedures**
-- **Preserve evidence for analysis**
+### **Procedimentos de Emergência**
+- **Parar todas as atividades** se algo der errado
+- **Documentar o que aconteceu**
+- **Notificar instrutor/supervisor**
+- **Seguir procedimentos de resposta a incidentes**
+- **Preservar evidências para análise**
 
 ---
 
-**Remember**: These simulations are for learning. Always practice responsible disclosure and ethical hacking principles! 
+**Lembre-se**: Estas simulações são para aprendizado. Sempre pratique divulgação responsável e princípios de hacking ético! 

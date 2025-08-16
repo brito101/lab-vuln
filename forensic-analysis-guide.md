@@ -6,7 +6,7 @@ This guide provides instructions for analyzing forensic artifacts created by the
 
 ## Artifacts Overview
 
-### Windows Artifacts (MAQ-1)
+
 - **Memory Dumps**: Process memory dumps (.dmp files)
 - **Event Logs**: Windows Event Logs (.evtx files)
 - **Registry Hives**: System registry files (.reg files)

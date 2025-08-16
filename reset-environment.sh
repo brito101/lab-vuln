@@ -52,7 +52,7 @@ fi
 
 print_status "RESET CONFIGURATION"
 echo "Targets to reset:"
-echo "- MAQ-1 (Windows Active Directory)"
+
 echo "- MAQ-2 (Laravel Web Application)"
 echo "- MAQ-3 (Linux Infrastructure)"
 echo "- SIEM Central"
@@ -68,7 +68,7 @@ function reset_docker_containers() {
     docker-compose down 2>/dev/null || true
     
     # Remove containers for each machine
-    for machine in "MAQ-1" "MAQ-2" "MAQ-3" "siem-central"; do
+    for machine in "MAQ-2" "MAQ-3" "siem-central"; do
         if [[ -d "$machine" ]]; then
             cd "$machine"
             if [[ -f "docker-compose.yml" ]]; then
@@ -167,12 +167,7 @@ function reset_machine_data() {
         
         # Remove specific machine files
         case $machine in
-            "MAQ-1")
-                # Windows-specific cleanup
-                print_warning "Removing Windows-specific files..."
-                rm -f *.ps1.log 2>/dev/null || true
-                rm -f siem_events.log 2>/dev/null || true
-                ;;
+
             "MAQ-2")
                 # Laravel-specific cleanup
                 print_warning "Removing Laravel-specific files..."
@@ -301,7 +296,7 @@ reset_siem_data
 reset_attack_logs
 
 # 4. Reset machine-specific data
-reset_machine_data "MAQ-1" "Windows Active Directory"
+
 reset_machine_data "MAQ-2" "Laravel Web Application"
 reset_machine_data "MAQ-3" "Linux Infrastructure"
 

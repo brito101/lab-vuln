@@ -5,4 +5,4 @@
 - **smbuser**: password123
 - **anonymous FTP**: (no password)
 
-> Estas credenciais são intencionalmente fracas para fins de laboratório. 
+> Estas credenciais são intencionalmente fracas para fins de laboratório.

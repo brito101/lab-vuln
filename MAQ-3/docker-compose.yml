@@ -17,15 +17,46 @@ services:
     environment:
       - DEBIAN_FRONTEND=noninteractive
     volumes:
-      - ./logs:/var/log
+      # Logs principais do sistema
+      - ./logs/system:/var/log
+      - ./logs/auth:/var/log/auth
+      - ./logs/ssh:/var/log/ssh
+      - ./logs/ftp:/var/log/vsftpd
+      - ./logs/samba:/var/log/samba
+      - ./logs/rsyslog:/var/log/rsyslog
+      
+      # Logs de aplicação específicos
+      - ./logs/app:/var/log/app
+      - ./logs/commands:/var/log/commands
+      - ./logs/debug:/var/log/debug
+      
+      # Arquivos vulneráveis para ataque
+      - ./vulnerable_files:/opt/vulnerable_files
+      - ./ftp_public:/var/ftp/pub
+      - ./samba_public:/var/samba/public
+      
+      # Configurações que podem ser exploradas
+      - ./configs:/etc/configs
+      
+      # Docker socket para escape (vulnerabilidade)
+      - /var/run/docker.sock:/var/run/docker.sock
+      
+      # Diretório home para persistência
+      - ./home:/home
     cap_add:
       - SYS_ADMIN
+      - NET_ADMIN
+      - SYS_PTRACE
+      - DAC_READ_SEARCH
     security_opt:
       - seccomp:unconfined
+      - apparmor:unconfined
+    privileged: true
+    user: root
 
 networks:
   soc-network:
     driver: bridge
     ipam:
       config:
-        - subnet: 192.168.100.0/24 
+        - subnet: 192.168.200.0/24 

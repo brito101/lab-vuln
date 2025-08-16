@@ -37,7 +37,7 @@ done
 
 echo ""
 echo "3. Checking configuration files..."
-for file in "MAQ-1/configure-syslog.ps1" "MAQ-2/configure-syslog.sh" "MAQ-3/configure-syslog.sh"; do
+for file in "MAQ-2/configure-syslog.sh" "MAQ-3/configure-syslog.sh"; do
     if [[ -f "$file" ]]; then
         echo "✅ $file exists"
     else

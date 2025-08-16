@@ -36,6 +36,14 @@ Thumbs.db
 data/
 volumes/
 
+# MAQ-3 specific directories (created by deploy script)
+MAQ-3/logs/
+MAQ-3/vulnerable_files/
+MAQ-3/ftp_public/
+MAQ-3/samba_public/
+MAQ-3/configs/
+MAQ-3/home/
+
 # Backup files
 *.bak
 *.backup
