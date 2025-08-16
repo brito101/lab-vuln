@@ -1,19 +1,15 @@
-# Lab Vuln - Ambiente de Treinamento SOC
+# Lab Vuln - Ambiente de Treinamento de Segurança
 
 ## Visão Geral
 
-Lab Vuln é um ambiente abrangente de treinamento de Centro de Operações de Segurança (SOC) projetado para educação em cibersegurança e prática hands-on. O laboratório inclui máquinas vulneráveis, logging centralizado, cenários de resposta a incidentes, simulações de ataque, artefatos forenses e integrações SIEM para experiências completas de treinamento SOC.
+Lab Vuln é um ambiente de treinamento de segurança projetado para educação em cibersegurança e prática hands-on. O laboratório inclui máquinas vulneráveis configuradas intencionalmente para treinamento em detecção de ataques, análise de logs e técnicas de penetração.
 
 ## Arquitetura
 
 O ambiente do laboratório consiste em:
 
-- **MAQ-2**: Aplicação web Laravel com falhas de segurança
-- **MAQ-3**: Infraestrutura Linux com configurações incorretas
-- **SIEM Central**: Logging centralizado e monitoramento (Graylog, Elasticsearch, Wazuh)
-- **Simulações de Ataque**: Cenários automatizados de ataque para treinamento
-- **Artefatos Forenses**: Dumps de memória, logs de eventos e imagens de disco para análise
-- **Integrações SIEM**: Suporte para Wazuh, ELK Stack, Splunk, Graylog, QRadar
+- **MAQ-2**: Aplicação web Laravel com falhas de segurança intencionais
+- **MAQ-3**: Infraestrutura Linux com configurações vulneráveis
 
 ## Início Rápido
 
@@ -26,252 +22,206 @@ sudo apt install docker.io docker-compose
 
 # Adicionar usuário ao grupo docker
 sudo usermod -aG docker $USER
+
+# Reiniciar sessão ou executar
+newgrp docker
 ```
 
-### 2. Iniciar SIEM Central
+### 2. Deploy dos Laboratórios
+
+#### MAQ-2 (Laravel)
 
 ```bash
-cd siem-central
-docker-compose up -d
-./configure-graylog.sh
+cd MAQ-2
+./maquina2-setup.sh deploy
 ```
 
-### 3. Configurar Máquinas
+#### MAQ-3 (Linux)
 
 ```bash
-# Configurar todas as máquinas para encaminhamento SIEM
-./configure-all-syslog.sh
+cd MAQ-3
+./maquina3-setup.sh deploy
 ```
 
-### 4. Verificar Configuração
+### 3. Verificar Status
 
 ```bash
-# Verificar configuração SIEM
-./verify-siem-config.sh
+# Status MAQ-2
+cd MAQ-2 && ./maquina2-setup.sh status
+
+# Status MAQ-3
+cd MAQ-3 && ./maquina3-setup.sh status
 ```
-
-### 5. Executar Simulações de Ataque
-
-```bash
-cd attack-simulations
-./brute-force-simulation.sh
-./lfi-simulation.sh
-./ransomware-simulation.ps1
-```
-
-### 6. Criar Artefatos Forenses
-
-```bash
-# Artefatos Linux (executar como root)
-cd MAQ-3 && sudo ./create-forensic-artifacts.sh
-```
-
-### 7. Configurar Plataformas SIEM Adicionais
-
-```bash
-# Configuração rápida para diferentes plataformas SIEM
-sudo ./siem-quick-setup.sh
-```
-
-## Reset do Ambiente
-
-Para múltiplas sessões de treinamento, use os scripts de reset para restaurar o ambiente ao seu estado inicial:
-
-### Reset Completo do Ambiente
-
-```bash
-./reset-environment.sh
-```
-
-### Reset Individual de Máquina
-
-```bash
-# Máquina Laravel
-cd MAQ-2 && sudo ./reset-laravel.sh
-
-# Máquina Linux
-cd MAQ-3 && sudo ./reset-linux.sh
-
-# SIEM central
-cd siem-central && sudo ./reset-siem.sh
-
-# Simulações de ataque
-cd attack-simulations && ./reset-attacks.sh
-```
-
-Para informações detalhadas sobre scripts de reset, veja [README-reset-scripts.md](README-reset-scripts.md).
 
 ## Componentes
 
 ### MAQ-2 (Aplicação Web Laravel)
 
-- Aplicação Laravel com vulnerabilidades
-- Endpoints de API com bypass de autenticação
-- Vulnerabilidades LFI
-- Integração SIEM
+**Descrição**: Sistema de vagas para estágio desenvolvido em Laravel com vulnerabilidades intencionais para treinamento.
 
-**Credenciais Padrão:**
+**Funcionalidades**:
 
-- Admin: `admin/admin123`
-- Usuário: `user/password123`
+- Aplicação web completa com AdminLTE
+- Sistema de usuários e permissões
+- Gestão de vagas e candidatos
+- Upload de arquivos vulnerável
+- Logs expostos para análise
 
-**Instruções de Implantação:** Veja [MAQ-2/deploy.sh](MAQ-2/deploy.sh) para script de implantação automatizada usando Docker/Sail. Use [MAQ-2/prepare-deploy-package.sh](MAQ-2/prepare-deploy-package.sh) para criar um pacote de implantação limpo. Para instruções de configuração detalhadas, veja [MAQ-2/README.md](MAQ-2/README.md).
+**Vulnerabilidades Configuradas**:
+
+- Debug mode ativado
+- Upload de arquivos sem validação adequada
+- Container Docker com privilégios elevados
+- Docker socket exposto para escape de container
+- Logs detalhados expostos
+
+**Acesso**:
+
+- **URL**: <http://localhost:80>
+- **AdminLTE**: <http://localhost:80/admin>
+- **Credenciais**: <admin@alfestagios.com> / password
+
+**Comandos Úteis**:
+
+```bash
+cd MAQ-2
+./maquina2-setup.sh deploy      # Deploy completo
+./maquina2-setup.sh status      # Status dos serviços
+./maquina2-setup.sh logs        # Monitorar logs
+./maquina2-setup.sh shell       # Acessar shell
+./attack-test.sh                # Testar ataques
+./container-escape-demo.sh      # Demonstração de escape
+```
 
 ### MAQ-3 (Infraestrutura Linux)
 
-- Servidor Linux com configurações incorretas
-- Serviços SSH, FTP e Samba
-- Políticas de senha fracas
-- Monitoramento de segurança
-- **Artefatos Forenses**: Dumps de memória, logs do sistema, imagens de disco
+**Descrição**: Servidor Linux com serviços configurados de forma vulnerável para treinamento em segurança.
 
-**Credenciais Padrão:**
+**Serviços Disponíveis**:
 
-- Root: `root/root123`
-- Usuário: `user/password123`
+- SSH (porta 2222)
+- FTP (porta 2121)
+- Samba (porta 139, 445)
+- HTTP (porta 8080)
 
-**Instruções de Configuração:** Veja [MAQ-3/README.md](MAQ-3/README.md) para instruções detalhadas de configuração e configuração.
+**Vulnerabilidades Configuradas**:
 
-### SIEM Central
+- Senhas fracas e conhecidas
+- Acesso anônimo ao FTP
+- Compartilhamentos Samba públicos
+- Container Docker com privilégios elevados
+- Docker socket exposto para escape de container
+- Capabilities perigosas ativadas
 
-- Graylog para agregação de logs
-- Elasticsearch para armazenamento de dados
-- Wazuh para monitoramento de segurança
-- Logstash para processamento de dados
+**Credenciais Padrão**:
 
-**Acesso:**
+- **Root**: root / root123
+- **FTP**: ftpuser / password123
+- **Samba**: smbuser / password123
 
-- Graylog: <http://192.168.1.102:9000> (admin/admin123)
-- Wazuh: <http://192.168.1.102:5601> (admin/admin123)
+**Comandos Úteis**:
+
+```bash
+cd MAQ-3
+./maquina3-setup.sh deploy      # Deploy completo
+./maquina3-setup.sh status      # Status dos serviços
+./maquina3-setup.sh logs        # Monitorar logs
+./maquina3-setup.sh shell       # Acessar shell
+./attack-test.sh                # Testar ataques
+./container-escape-demo.sh      # Demonstração de escape
+```
+
+## Logs e Monitoramento
+
+### Logs Expostos para Análise
+
+**MAQ-2**:
+
+- Sistema: `logs/system/`
+- Laravel: `logs/laravel/`
+- PHP: `logs/php/`
+- MySQL: `logs/mysql/`
+- Redis: `logs/redis/`
+- Nginx: `logs/nginx/`
+
+**MAQ-3**:
+
+- Sistema: `logs/system/`
+- SSH: `logs/ssh/`
+- FTP: `logs/ftp/`
+- Samba: `logs/samba/`
+- Aplicação: `logs/app/`
+- Comandos: `logs/commands/`
+
+### Coleta de Logs
+
+Os logs são expostos via volumes Docker para permitir coleta por agentes de monitoramento externos (Elastic, Logstash, etc.).
 
 ## Cenários de Treinamento
 
-### Cenários de Resposta a Incidentes
+### Ataques Web (MAQ-2)
 
-Veja [scenarios.md](scenarios.md) para cenários detalhados de resposta a incidentes:
+- SQL Injection
+- Cross-Site Scripting (XSS)
+- Local File Inclusion (LFI)
+- Upload de arquivos maliciosos
+- Directory Traversal
+- Brute Force em formulários
 
-- **Iniciante**: Detecção de brute force, alertas simples de malware
-- **Intermediário**: Ameaças persistentes avançadas, exfiltração de dados
-- **Avançado**: Ataques sofisticados, coordenação de incidentes
+### Ataques de Infraestrutura (MAQ-3)
 
-### Simulações de Ataque
+- Brute Force SSH
+- Acesso anônimo FTP
+- Compartilhamentos Samba não autorizados
+- Container escape via Docker socket
+- Exploitação de capabilities Linux
 
-Simulações automatizadas de ataque para treinamento:
+### Análise de Logs
 
-- **Brute Force**: Ataques SSH, FTP e aplicação web
-- **LFI**: Vulnerabilidades de Inclusão Local de Arquivo
-- **Ransomware**: Simulação de criptografia de arquivos
+- Detecção de tentativas de login
+- Identificação de padrões de ataque
+- Correlação de eventos
+- Análise de tráfego de rede
 
-Veja [attack-simulations/README.md](attack-simulations/README.md) para detalhes.
+## Reset do Ambiente
 
-### Análise Forense
+Para múltiplas sessões de treinamento, use os scripts de reset para restaurar o ambiente ao seu estado inicial:
 
-Artefatos forenses abrangentes para exercícios de análise:
+### Reset Completo
 
-- **Análise de Memória**: Dumps de processo, memória do kernel
-- **Logs de Eventos**: Arquivos .evtx do Windows, logs do sistema Linux
-- **Imagens de Disco**: Cópias lógicas de diretórios importantes
-- **Análise de Linha do Tempo**: Linhas do tempo do sistema de arquivos
-- **Artefatos de Rede**: Logs de conexão, regras de firewall
+```bash
+# MAQ-2
+cd MAQ-2 && ./maquina2-setup.sh clean
 
-Veja [forensic-analysis-guide.md](forensic-analysis-guide.md) para instruções detalhadas de análise.
+# MAQ-3
+cd MAQ-3 && ./maquina3-setup.sh clean
+```
 
-### Integrações SIEM
+### Reset Individual
 
-Múltiplas integrações de plataforma SIEM para treinamento abrangente:
+```bash
+# Parar ambiente
+./maquina2-setup.sh stop    # ou maquina3-setup.sh stop
 
-- **Wazuh**: SIEM open-source com monitoramento baseado em agente
-- **ELK Stack**: Elasticsearch, Logstash, Kibana para análise de big data
-- **Splunk**: SIEM empresarial com analytics avançados
-- **Graylog**: Plataforma de gerenciamento de logs open-source
-- **QRadar**: SIEM empresarial IBM com capacidades de IA
-
-Veja [siem-integration-examples.md](siem-integration-examples.md) para instruções detalhadas de integração e [siem-comparison-guide.md](siem-comparison-guide.md) para comparações de plataformas.
-
-## Documentação
-
-- [README-reset-scripts.md](README-reset-scripts.md) - Documentação dos scripts de reset
-- [scenarios.md](scenarios.md) - Cenários de resposta a incidentes
-- [attack-simulations/README.md](attack-simulations/README.md) - Guia de simulação de ataque
-- [siem-integration-guide.md](siem-integration-guide.md) - Configuração e configuração SIEM
-- [siem-integration-examples.md](siem-integration-examples.md) - Exemplos de integração SIEM
-- [siem-comparison-guide.md](siem-comparison-guide.md) - Comparação de plataformas SIEM
-- [forensic-analysis-guide.md](forensic-analysis-guide.md) - Guia de análise forense
-- [default-credentials.md](default-credentials.md) - Credenciais padrão para todas as máquinas
+# Reiniciar ambiente
+./maquina2-setup.sh start   # ou maquina3-setup.sh start
+```
 
 ## Configuração de Rede
 
 ### Endereços IP
 
-- **SIEM Central**: 192.168.1.102
-- **MAQ-2 (Laravel)**: 192.168.1.20
-- **MAQ-3 (Linux)**: 192.168.1.30
+- **MAQ-2**: 192.168.201.0/24 (rede Docker)
+- **MAQ-3**: 192.168.200.0/24 (rede Docker)
 
-### Portas
+### Portas Principais
 
-- **Graylog**: 9000 (Web), 12201 (Syslog)
-- **Wazuh**: 5601 (Web), 1514 (Agente)
-- **Elasticsearch**: 9200 (HTTP), 9300 (Transport)
-- **Kibana**: 5601 (Web)
-- **Splunk**: 8000 (Web), 8089 (Gerenciamento)
-- **SSH**: 22
-- **FTP**: 21
-- **Samba**: 445, 139
-
-## Artefatos Forenses
-
-### Artefatos Linux (MAQ-3)
-
-- **Dumps de Memória**: Dumps de memória do kernel e processo (.raw files)
-- **Logs do Sistema**: Logs de autenticação, sistema, serviço
-- **Logs de Auditoria**: Informações de trilha de auditoria
-- **Artefatos de Rede**: Conexões de rede, regras de firewall
-- **Informações de Processo**: Listas de processo, arquivos abertos, módulos carregados
-- **Linha do Tempo**: Dados de linha do tempo do sistema de arquivos
-
-### Ferramentas de Análise
-
-- **Análise de Memória**: Volatility, Rekall
-- **Logs de Eventos**: Visualizador de Eventos, Log Parser
-- **Linha do Tempo**: Plaso, log2timeline
-- **Rede**: Wireshark, NetworkMiner
-- **Sistema de Arquivos**: The Sleuth Kit, Autopsy
-
-## Suporte a Plataformas SIEM
-
-### Plataformas Suportadas
-
-- **Wazuh**: SIEM open-source com monitoramento abrangente
-- **ELK Stack**: Analytics e visualização de big data
-- **Splunk**: SIEM de nível empresarial com recursos avançados
-- **Graylog**: Gerenciamento de logs open-source
-- **QRadar**: SIEM empresarial IBM com capacidades de IA
-
-### Recursos da Plataforma
-
-- **Monitoramento em Tempo Real**: Todas as plataformas suportam análise de logs em tempo real
-- **Gerenciamento de Alertas**: Sistemas de alerta e notificação personalizáveis
-- **Inteligência de Ameaças**: Integração com feeds de inteligência de ameaças
-- **Conformidade**: Monitoramento e relatórios de conformidade integrados
-- **Análise Forense**: Capacidades avançadas de busca e correlação
-
-### Configuração Rápida
-
-```bash
-# Configurar qualquer plataforma SIEM
-sudo ./siem-quick-setup.sh
-
-# Escolher do menu:
-# 1. Wazuh
-# 2. ELK Stack
-# 3. Graylog
-# 4. Splunk
-# 5. Ambiente Multi-SIEM
-```
+- **MAQ-2**: 80 (HTTP), 3306 (MySQL), 6379 (Redis)
+- **MAQ-3**: 2222 (SSH), 2121 (FTP), 139/445 (Samba)
 
 ## Considerações de Segurança
 
-⚠️ **IMPORTANTE**: Este é um ambiente de treinamento com vulnerabilidades intencionais. Não implante em ambientes de produção.
+⚠️ **IMPORTANTE**: Este é um ambiente de treinamento com vulnerabilidades intencionais. **NÃO USE EM PRODUÇÃO**.
 
 ### Medidas de Segurança
 
@@ -279,8 +229,7 @@ sudo ./siem-quick-setup.sh
 - Sem acesso à internet para máquinas vulneráveis
 - Simulações de ataque controladas
 - Capacidades de reset para estado limpo
-- Artefatos forenses para treinamento de análise
-- Suporte multi-SIEM para monitoramento abrangente
+- Logs expostos para treinamento de análise
 
 ### Melhores Práticas
 
@@ -288,8 +237,6 @@ sudo ./siem-quick-setup.sh
 - Resets regulares do ambiente
 - Monitore para acesso não autorizado
 - Faça backup de dados importantes antes dos resets
-- Mantenha cadeia de custódia para artefatos forenses
-- Teste integrações SIEM completamente
 
 ## Solução de Problemas
 
@@ -308,36 +255,21 @@ sudo systemctl restart docker
 #### Problemas de Rede
 
 ```bash
-# Verificar conectividade de rede
-ping 192.168.1.102
-
-# Verificar rede Docker
+# Verificar redes Docker
 docker network ls
+
+# Remover rede conflitante
+docker network rm soc-network
 ```
 
-#### Problemas SIEM
+#### Problemas de Deploy
 
 ```bash
-# Verificar containers SIEM
-cd siem-central && docker-compose ps
+# Limpar ambiente
+./maquina2-setup.sh clean    # ou maquina3-setup.sh clean
 
-# Verificar logs SIEM
-docker-compose logs
-
-# Testar conectividade SIEM
-./siem-tests/test-wazuh.sh
-./siem-tests/test-elk.sh
-./siem-tests/test-graylog.sh
-```
-
-#### Problemas de Artefatos Forenses
-
-```bash
-# Verificar criação de artefatos
-ls -la MAQ-3/forensic-artifacts/
-
-# Verificar integridade de artefatos
-md5sum MAQ-3/forensic-artifacts/*.raw
+# Deploy novamente
+./maquina2-setup.sh deploy   # ou maquina3-setup.sh deploy
 ```
 
 ### Reset do Ambiente
@@ -346,12 +278,16 @@ Se o ambiente se tornar instável:
 
 ```bash
 # Reset completo
-./reset-environment.sh
+./maquina2-setup.sh clean    # ou maquina3-setup.sh clean
 
-# Reiniciar serviços
-cd siem-central && docker-compose up -d
-./configure-all-syslog.sh
+# Deploy novamente
+./maquina2-setup.sh deploy   # ou maquina3-setup.sh deploy
 ```
+
+## Documentação
+
+- [MAQ-2/README.md](MAQ-2/README.md) - Documentação completa do laboratório Laravel
+- [MAQ-3/README.md](MAQ-3/README.md) - Documentação completa do laboratório Linux
 
 ## Contribuindo
 
@@ -361,8 +297,7 @@ Para contribuir com o Lab Vuln:
 2. Teste todas as mudanças em ambiente isolado
 3. Atualize a documentação
 4. Inclua capacidades de reset para novos componentes
-5. Adicione artefatos forenses para novas máquinas
-6. Suporte plataformas SIEM adicionais
+5. Mantenha o foco em vulnerabilidades para treinamento
 
 ## Licença
 
@@ -374,11 +309,9 @@ Para problemas e perguntas:
 
 1. Verifique a seção de solução de problemas
 2. Revise arquivos de log
-3. Consulte a documentação
+3. Consulte a documentação específica de cada laboratório
 4. Use scripts de reset se necessário
-5. Consulte o guia de análise forense para análise de artefatos
-6. Verifique guias de integração SIEM para problemas específicos de plataforma
 
 ---
 
-**Lab Vuln** - Ambiente Abrangente de Treinamento SOC com Análise Forense e Capacidades Multi-SIEM
+**Lab Vuln** - Ambiente de Treinamento de Segurança com Laboratórios MAQ-2 (Laravel) e MAQ-3 (Linux)
