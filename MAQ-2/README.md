@@ -25,6 +25,7 @@ O MAQ-2 é um ambiente de treinamento que simula uma aplicação Laravel vulner�
 ## 🎯 **Vulnerabilidades Configuradas**
 
 ### **Aplicação Web (Laravel)**
+
 - ✅ **Debug Mode Habilitado** - Exposição de informações sensíveis
 - ✅ **Upload de Arquivos Sem Validação** - Possibilidade de upload de webshells
 - ✅ **Arquivo .env Exposto** - Acesso direto a configurações sensíveis
@@ -33,6 +34,7 @@ O MAQ-2 é um ambiente de treinamento que simula uma aplicação Laravel vulner�
 - ✅ **Logs Expostos** - Acesso direto a logs da aplicação
 
 ### **Container e Sistema**
+
 - ✅ **Docker Socket Exposto** - Escape de container via Docker
 - ✅ **Container Privilegiado** - Acesso elevado ao host
 - ✅ **Capabilities Perigosas** - SYS_ADMIN, NET_ADMIN, SYS_PTRACE, DAC_READ_SEARCH
@@ -41,11 +43,13 @@ O MAQ-2 é um ambiente de treinamento que simula uma aplicação Laravel vulner�
 ## 🚀 **Deploy Rápido**
 
 ### **1. Deploy Completo**
+
 ```bash
 ./maquina2-setup.sh deploy
 ```
 
 ### **2. Gerenciamento do Ambiente**
+
 ```bash
 # Iniciar
 ./maquina2-setup.sh start
@@ -88,6 +92,7 @@ O MAQ-2 é um ambiente de treinamento que simula uma aplicação Laravel vulner�
 ## 📊 **Logs Expostos para Elastic**
 
 ### **Estrutura de Diretórios**
+
 ```
 logs/
 ├── system/           # Logs do sistema
@@ -114,6 +119,7 @@ logs/
 ```
 
 ### **Arquivos Importantes para SIEM**
+
 - `logs/nginx/access.log` - Todos os acessos HTTP
 - `logs/nginx/error.log` - Erros HTTP e tentativas de ataque
 - `logs/laravel/laravel.log` - Logs da aplicação Laravel
@@ -123,6 +129,7 @@ logs/
 ## 🔓 **Vetores de Ataque**
 
 ### **1. Upload de Webshells**
+
 ```bash
 # Acessar diretório de uploads
 http://localhost:8080/uploads/
@@ -132,6 +139,7 @@ http://localhost:8080/uploads/
 ```
 
 ### **2. Acesso Direto ao .env**
+
 ```bash
 # Acessar arquivo de configuração
 http://localhost:8080/.env
@@ -140,6 +148,7 @@ http://localhost:8080/.env
 ```
 
 ### **3. LFI (Local File Inclusion)**
+
 ```bash
 # Via visualizador de arquivos da aplicação
 http://localhost:8080/admin/system/file?file=../../../etc/passwd
@@ -149,6 +158,7 @@ http://localhost:8080/admin/system/log?file=../../../var/log/nginx/access.log
 ```
 
 ### **4. Escape de Container**
+
 ```bash
 # Acessar container
 docker exec -it maquina2-soc bash
@@ -161,6 +171,7 @@ docker run --rm -it --privileged -v /:/host ubuntu:latest chroot /host bash
 ```
 
 ### **5. Manipulação de Permissões**
+
 ```bash
 # Dentro do container
 chmod 777 /var/www/html/storage/
@@ -170,6 +181,7 @@ chmod 777 /var/www/html/bootstrap/cache/
 ## 🧪 **Scripts de Teste**
 
 ### **1. Teste de Ataques**
+
 ```bash
 # Executar todos os testes
 ./attack-test.sh
@@ -187,6 +199,7 @@ chmod 777 /var/www/html/bootstrap/cache/
 ```
 
 ### **2. Demonstração de Escape de Container**
+
 ```bash
 # Acessar container
 docker exec -it maquina2-soc bash
@@ -206,6 +219,7 @@ docker exec -it maquina2-soc bash
 ## 🔑 **Credenciais Padrão**
 
 ### **Usuários da Aplicação**
+
 - **Administrador**: `admin@estagio.com` / `12345678`
 - **Programador**: `programador@estagio.com` / `12345678`
 - **Franquiado 1**: `franquia1@estagio.com` / `12345678`
@@ -214,6 +228,7 @@ docker exec -it maquina2-soc bash
 - **Estagiário**: `estagiario@estagio.com` / `12345678`
 
 ### **Banco de Dados**
+
 - **Host**: `localhost:8081`
 - **Database**: `laravel`
 - **Usuário**: `sail`
@@ -222,6 +237,7 @@ docker exec -it maquina2-soc bash
 ## 📝 **Comandos Úteis**
 
 ### **Monitoramento de Logs**
+
 ```bash
 # Logs em tempo real
 tail -f logs/nginx/access.log logs/laravel/laravel.log logs/app/application.log
@@ -234,6 +250,7 @@ tail -f logs/app/security.log         # Eventos de segurança
 ```
 
 ### **Gerenciamento de Container**
+
 ```bash
 # Status dos containers
 docker-compose ps
@@ -249,6 +266,7 @@ docker-compose down
 ```
 
 ### **Acesso ao Container**
+
 ```bash
 # Shell do container principal
 docker exec -it maquina2-soc bash
@@ -261,21 +279,25 @@ docker exec -it maquina2-redis bash
 ## 🎯 **Cenários de Treinamento**
 
 ### **1. Detecção de Uploads Maliciosos**
+
 - Monitorar logs de upload
 - Detectar arquivos PHP suspeitos
 - Analisar payloads de ataque
 
 ### **2. Análise de Tentativas de LFI**
+
 - Identificar padrões de path traversal
 - Correlacionar com logs de acesso
 - Detectar tentativas de acesso a arquivos sensíveis
 
 ### **3. Monitoramento de Escape de Container**
+
 - Logs de tentativas de execução de comandos
 - Acesso ao Docker socket
 - Manipulação de capabilities
 
 ### **4. Análise de Ataques Web**
+
 - SQL Injection em formulários
 - XSS em campos de entrada
 - Directory Traversal em APIs
@@ -292,6 +314,7 @@ docker exec -it maquina2-redis bash
 ### **Problemas Comuns**
 
 1. **Container não inicia**
+
    ```bash
    docker-compose logs maquina2
    ./maquina2-setup.sh clean
@@ -299,6 +322,7 @@ docker exec -it maquina2-redis bash
    ```
 
 2. **Serviços não respondem**
+
    ```bash
    ./maquina2-setup.sh status
    docker exec -it maquina2-soc service nginx status
@@ -306,12 +330,14 @@ docker exec -it maquina2-redis bash
    ```
 
 3. **Logs não são gerados**
+
    ```bash
    docker exec -it maquina2-soc ls -la /var/log/
    docker exec -it maquina2-soc service rsyslog status
    ```
 
 ### **Verificação de Saúde**
+
 ```bash
 # Verificar todos os serviços
 ./maquina2-setup.sh status
@@ -334,6 +360,7 @@ ls -la logs/*/*.log
 ## 🆘 **Suporte**
 
 Para dúvidas ou problemas:
+
 1. Verificar logs do sistema
 2. Consultar documentação
 3. Executar `./maquina2-setup.sh attack-info`
@@ -341,4 +368,4 @@ Para dúvidas ou problemas:
 
 ---
 
-**⚠️ LEMBRE-SE: Este ambiente é para TREINAMENTO apenas! ⚠️** 
+**⚠️ LEMBRE-SE: Este ambiente é para TREINAMENTO apenas! ⚠️**

@@ -8,6 +8,7 @@ Lab Vuln é um ambiente de treinamento de segurança projetado para educação e
 
 O ambiente do laboratório consiste em:
 
+- **MAQ-1**: Windows Server 2022 Domain Controller com Active Directory vulnerável
 - **MAQ-2**: Aplicação web Laravel com falhas de segurança intencionais
 - **MAQ-3**: Infraestrutura Linux com configurações vulneráveis
 
@@ -29,6 +30,13 @@ newgrp docker
 
 ### 2. Deploy dos Laboratórios
 
+#### MAQ-1 (Windows Server 2022 DC)
+
+```bash
+cd MAQ-1
+./maquina1-setup.sh deploy
+```
+
 #### MAQ-2 (Laravel)
 
 ```bash
@@ -46,6 +54,9 @@ cd MAQ-3
 ### 3. Verificar Status
 
 ```bash
+# Status MAQ-1
+cd MAQ-1 && ./maquina1-setup.sh status
+
 # Status MAQ-2
 cd MAQ-2 && ./maquina2-setup.sh status
 
@@ -54,6 +65,49 @@ cd MAQ-3 && ./maquina3-setup.sh status
 ```
 
 ## Componentes
+
+### MAQ-1 (Windows Server 2022 Domain Controller)
+
+**Descrição**: Servidor Windows Server 2022 configurado como Domain Controller com Active Directory vulnerável para treinamento em segurança de infraestrutura Windows.
+
+**Funcionalidades**:
+
+- Windows Server 2022 Standard Edition
+- Active Directory Domain Services (AD DS)
+- DNS Server configurado
+- Group Policy Objects (GPO)
+- Usuários e grupos de teste
+- Auditoria detalhada habilitada
+
+**Vulnerabilidades Configuradas**:
+
+- UAC (User Account Control) desabilitado
+- Políticas de senha permissivas (complexidade desabilitada, mínimo 4 caracteres)
+- Auditoria excessiva para gerar logs intensivos
+- DNS configurado para permitir transferência de zona
+- Usuários com senhas fracas e previsíveis
+- Firewall configurado para serviços de domínio
+
+**Acesso**:
+
+- **RDP**: localhost:3389
+- **Web Viewer**: http://localhost:8006
+- **Credenciais**: Administrator / P@ssw0rd123!
+- **Usuários de teste**: testuser / Password123!, admin / Admin123!
+
+**Comandos Úteis**:
+
+```bash
+cd MAQ-1
+./maquina1-setup.sh deploy      # Deploy completo
+./maquina1-setup.sh status      # Status dos serviços
+./maquina1-setup.sh logs        # Monitorar logs
+./maquina1-setup.sh start       # Iniciar laboratório
+./maquina1-setup.sh stop        # Parar laboratório
+./maquina1-setup.sh restart     # Reiniciar laboratório
+./maquina1-setup.sh clean       # Limpar ambiente
+./maquina1-setup.sh attack-info # Informações de ataque
+```
 
 ### MAQ-2 (Aplicação Web Laravel)
 
@@ -135,6 +189,14 @@ cd MAQ-3
 
 ### Logs Expostos para Análise
 
+**MAQ-1**:
+
+- Sistema: Windows Event Logs (Security, System, Application)
+- Active Directory: Logs de auditoria detalhada
+- DNS: Logs de consultas e transferências
+- Elastic: Logs estruturados em `C:\oem\elastic-logs.txt`
+- Status: `C:\oem\dc-status.txt` e `C:\oem\lab-config.txt`
+
 **MAQ-2**:
 
 - Sistema: `logs/system/`
@@ -159,6 +221,16 @@ Os logs são expostos via volumes Docker para permitir coleta por agentes de mon
 
 ## Cenários de Treinamento
 
+### Ataques de Infraestrutura Windows (MAQ-1)
+
+- Brute Force em contas de usuário
+- Exploitação de políticas de senha fracas
+- Ataques de enumeração de Active Directory
+- DNS Zone Transfer attacks
+- Kerberoasting e ataques de autenticação
+- Análise de logs de auditoria Windows
+- Exploitação de configurações de GPO
+
 ### Ataques Web (MAQ-2)
 
 - SQL Injection
@@ -178,6 +250,14 @@ Os logs são expostos via volumes Docker para permitir coleta por agentes de mon
 
 ### Análise de Logs
 
+**MAQ-1 (Windows)**:
+- Análise de logs de auditoria do Active Directory
+- Detecção de tentativas de login e autenticação
+- Monitoramento de eventos de segurança Windows
+- Análise de logs DNS e transferências de zona
+- Correlação de eventos de GPO e políticas
+
+**MAQ-2 e MAQ-3 (Linux/Web)**:
 - Detecção de tentativas de login
 - Identificação de padrões de ataque
 - Correlação de eventos
@@ -190,6 +270,9 @@ Para múltiplas sessões de treinamento, use os scripts de reset para restaurar 
 ### Reset Completo
 
 ```bash
+# MAQ-1
+cd MAQ-1 && ./maquina1-setup.sh clean
+
 # MAQ-2
 cd MAQ-2 && ./maquina2-setup.sh clean
 
@@ -201,21 +284,23 @@ cd MAQ-3 && ./maquina3-setup.sh clean
 
 ```bash
 # Parar ambiente
-./maquina2-setup.sh stop    # ou maquina3-setup.sh stop
+./maquina1-setup.sh stop    # ou maquina2-setup.sh stop ou maquina3-setup.sh stop
 
 # Reiniciar ambiente
-./maquina2-setup.sh start   # ou maquina3-setup.sh start
+./maquina1-setup.sh start   # ou maquina2-setup.sh start ou maquina3-setup.sh start
 ```
 
 ## Configuração de Rede
 
 ### Endereços IP
 
+- **MAQ-1**: 192.168.101.0/24 (rede Docker)
 - **MAQ-2**: 192.168.201.0/24 (rede Docker)
 - **MAQ-3**: 192.168.200.0/24 (rede Docker)
 
 ### Portas Principais
 
+- **MAQ-1**: 3389 (RDP), 8006 (Web Viewer), 5353 (DNS), 1389 (LDAP), 1445 (SMB)
 - **MAQ-2**: 80 (HTTP), 3306 (MySQL), 6379 (Redis)
 - **MAQ-3**: 2222 (SSH), 2121 (FTP), 139/445 (Samba)
 
@@ -258,18 +343,20 @@ sudo systemctl restart docker
 # Verificar redes Docker
 docker network ls
 
-# Remover rede conflitante
-docker network rm soc-network
+# Remover redes conflitantes
+docker network rm lab-network    # MAQ-1
+docker network rm soc-network    # MAQ-2
+docker network rm maq3-network  # MAQ-3
 ```
 
 #### Problemas de Deploy
 
 ```bash
 # Limpar ambiente
-./maquina2-setup.sh clean    # ou maquina3-setup.sh clean
+./maquina1-setup.sh clean    # ou maquina2-setup.sh clean ou maquina3-setup.sh clean
 
 # Deploy novamente
-./maquina2-setup.sh deploy   # ou maquina3-setup.sh deploy
+./maquina1-setup.sh deploy   # ou maquina2-setup.sh deploy ou maquina3-setup.sh deploy
 ```
 
 ### Reset do Ambiente
@@ -278,14 +365,15 @@ Se o ambiente se tornar instável:
 
 ```bash
 # Reset completo
-./maquina2-setup.sh clean    # ou maquina3-setup.sh clean
+./maquina1-setup.sh clean    # ou maquina2-setup.sh clean ou maquina3-setup.sh clean
 
 # Deploy novamente
-./maquina2-setup.sh deploy   # ou maquina3-setup.sh deploy
+./maquina1-setup.sh deploy   # ou maquina2-setup.sh deploy ou maquina3-setup.sh deploy
 ```
 
 ## Documentação
 
+- [MAQ-1/README.md](MAQ-1/README.md) - Documentação completa do laboratório Windows Server 2022 DC
 - [MAQ-2/README.md](MAQ-2/README.md) - Documentação completa do laboratório Laravel
 - [MAQ-3/README.md](MAQ-3/README.md) - Documentação completa do laboratório Linux
 
@@ -314,4 +402,4 @@ Para problemas e perguntas:
 
 ---
 
-**Lab Vuln** - Ambiente de Treinamento de Segurança com Laboratórios MAQ-2 (Laravel) e MAQ-3 (Linux)
+**Lab Vuln** - Ambiente de Treinamento de Segurança com Laboratórios MAQ-1 (Windows Server 2022 DC), MAQ-2 (Laravel) e MAQ-3 (Linux)
