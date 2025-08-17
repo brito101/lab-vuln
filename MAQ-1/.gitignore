@@ -1,0 +1,134 @@
+# MAQ-1 - Laboratório de Vulnerabilidades - Windows Server 2022 DC
+# Arquivos e diretórios que NÃO devem ser versionados
+
+# ========================================
+# DIRETÓRIOS DE DADOS DO LABORATÓRIO
+# ========================================
+# Dados de armazenamento do Windows
+windows/storage/
+windows/iso/
+
+# Logs do laboratório (removido - não utilizado)
+# logs/
+*.log
+
+# Arquivos vulneráveis criados durante testes
+vulnerable_files/
+
+# ========================================
+# DOCKER E CONTAINERS
+# ========================================
+# Volumes e dados de containers
+docker-compose.override.yml
+.env
+.dockerignore
+
+# ========================================
+# SISTEMA OPERACIONAL
+# ========================================
+# Arquivos temporários
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================================
+# EDITORES E IDEs
+# ========================================
+.vscode/
+.idea/
+*.sublime-*
+.atom/
+
+# ========================================
+# BACKUPS E ARQUIVOS DE CONFIGURAÇÃO
+# ========================================
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+
+# ========================================
+# LOGS E MONITORAMENTO
+# ========================================
+# Logs do sistema
+*.log
+*.out
+*.err
+
+# Arquivos de auditoria
+audit/
+monitoring/
+
+# ========================================
+# DADOS SENSÍVEIS
+# ========================================
+# Credenciais e chaves
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.csr
+
+# Arquivos de configuração com senhas
+*password*
+*secret*
+*credential*
+
+# ========================================
+# ARQUIVOS TEMPORÁRIOS DO LABORATÓRIO
+# ========================================
+# Arquivos criados durante testes
+test_*
+temp_*
+tmp_*
+
+# Dumps e capturas
+*.dmp
+*.cap
+*.pcap
+*.har
+
+# ========================================
+# EXCEÇÕES - ARQUIVOS QUE DEVEM SER VERSIONADOS
+# ========================================
+!README.md
+!maquina1-setup.sh
+!compose.yml
+!Dockerfile
+!scripts/
+!src/
+!assets/
+!license.md
+!.devcontainer.json
+!.dockerignore
+
+# ========================================
+# NOTAS IMPORTANTES
+# ========================================
+# Este .gitignore é específico para o laboratório MAQ-1
+# Mantém apenas os arquivos de configuração e código fonte
+# Remove dados temporários, logs e arquivos sensíveis
+# 
+# ARQUIVOS MANTIDOS:
+# - Scripts de configuração
+# - Docker Compose
+# - Dockerfile
+# - Código fonte (src/)
+# - Configurações (assets/)
+# - Documentação
+#
+# ARQUIVOS REMOVIDOS:
+# - Dados de armazenamento
+# - Logs e auditoria
+# - Arquivos vulneráveis
+# - Credenciais
+# - Arquivos temporários
