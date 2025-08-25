@@ -55,7 +55,7 @@ if [ ! -f /home/analyst/.ssh/analyst_id_rsa ]; then
     echo "Gerando chaves SSH para analyst..."
     su - analyst -c "ssh-keygen -t rsa -b 2048 -f /home/analyst/.ssh/analyst_id_rsa -N ''"
     su - analyst -c "cp /home/analyst/.ssh/analyst_id_rsa.pub /home/analyst/.ssh/authorized_keys"
-    chmod 600 /home/analyst/.ssh/analyst_id_rsa
+    chmod 644 /home/analyst/.ssh/analyst_id_rsa
     chmod 644 /home/analyst/.ssh/analyst_id_rsa.pub
     chmod 644 /home/analyst/.ssh/authorized_keys
     chmod 777 /home/analyst/.ssh
