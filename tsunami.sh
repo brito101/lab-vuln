@@ -31,10 +31,12 @@ show_help() {
     echo "  $0 [OPÇÕES]"
     echo ""
     echo -e "${YELLOW}Opções:${NC}"
-    echo "  -i, --ips IPs              IP(s) alvo (separados por vírgula)"
+    echo "  -i, --ips ALVOS           IP(s) ou domínio(s) alvo (separados por vírgula)"
     echo "  -d, --duration SEGUNDOS    Duração da simulação em segundos"
     echo "  -p, --packets QUANTIDADE   Número de pacotes por serviço (padrão: 100)"
     echo "  -l, --lab LABORATÓRIO      Tipo de laboratório (MAQ-1, MAQ-2, MAQ-3, MAQ-4)"
+    echo "  -s, --service SERVIÇO      Serviço único (ex: HTTP, HTTPS, FTP, SSH, SMTP)"
+    echo "  --port PORTA               Porta única para o serviço definido"
     echo "  -h, --help                 Mostra esta ajuda"
     echo "  --install                  Instala dependências necessárias"
     echo "  --status                   Mostra status dos laboratórios"
@@ -42,7 +44,8 @@ show_help() {
     echo -e "${YELLOW}Exemplos:${NC}"
     echo "  $0 -i 192.168.1.100 -d 60 -p 100"
     echo "  $0 -i 192.168.1.100,192.168.1.101 -d 120 -p 50 -l MAQ-1"
-    echo "  $0 -i 192.168.1.100 -d 300 -p 200 -l MAQ-4"
+    echo "  $0 -i exemplo.com,192.168.1.100 -d 300 -p 200 -l MAQ-4"
+    echo "  $0 -i www.seusite.com -d 30 --service HTTPS --port 443"
     echo ""
     echo -e "${YELLOW}Laboratórios disponíveis:${NC}"
     echo "  ${GREEN}MAQ-1${NC}: Windows Server 2022 Domain Controller"
@@ -135,8 +138,8 @@ check_lab_status() {
 # Valida argumentos
 validate_args() {
     if [[ -z "$TARGET_IPS" ]]; then
-        echo -e "${RED}Erro: IPs alvo são obrigatórios${NC}"
-        echo "Use -i ou --ips para especificar os IPs"
+        echo -e "${RED}Erro: Alvos são obrigatórios${NC}"
+        echo "Use -i ou --ips para especificar IPs ou domínios"
         exit 1
     fi
     
@@ -151,7 +154,7 @@ validate_args() {
         exit 1
     fi
     
-    if [[ "$PACKETS" -lt 1 ]]; then
+    if [[ -n "$PACKETS" && "$PACKETS" -lt 1 ]]; then
         echo -e "${RED}Erro: Número de pacotes deve ser maior que 0${NC}"
         exit 1
     fi
@@ -176,6 +179,14 @@ main() {
                 ;;
             -l|--lab)
                 LAB="$2"
+                shift 2
+                ;;
+            -s|--service)
+                SERVICE="$2"
+                shift 2
+                ;;
+            --port)
+                SERVICE_PORT="$2"
                 shift 2
                 ;;
             --install)
@@ -219,10 +230,18 @@ main() {
     fi
     
     # Constrói comando Python
-    PYTHON_CMD="python3 $PYTHON_SCRIPT -i $TARGET_IPS -d $DURATION -p $PACKETS"
-    
+    PYTHON_CMD="python3 $PYTHON_SCRIPT -i $TARGET_IPS -d $DURATION"
+    if [[ -n "$PACKETS" ]]; then
+        PYTHON_CMD="$PYTHON_CMD -p $PACKETS"
+    fi
     if [[ -n "$LAB" ]]; then
         PYTHON_CMD="$PYTHON_CMD -l $LAB"
+    fi
+    if [[ -n "$SERVICE" ]]; then
+        PYTHON_CMD="$PYTHON_CMD --service $SERVICE"
+    fi
+    if [[ -n "$SERVICE_PORT" ]]; then
+        PYTHON_CMD="$PYTHON_CMD --port $SERVICE_PORT"
     fi
     
     # Executa o simulador

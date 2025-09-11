@@ -167,6 +167,10 @@ case "${1:-}" in
     deploy)
         deploy
         ;;
+    "start")
+        docker-compose up -d
+        check_services
+        ;;
     stop)
         stop
         ;;

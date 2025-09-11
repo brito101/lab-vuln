@@ -10,6 +10,10 @@ Simulador de tráfego avançado para laboratórios de segurança, projetado para
 - **Tráfego Realista**: Simula comportamento humano com intervalos aleatórios
 - **Estatísticas Detalhadas**: Monitoramento em tempo real e relatórios finais
 - **Interface Amigável**: Script bash wrapper com cores e formatação
+- **Suporte a Domínios/URLs**: Aceita domínios e URLs como alvo, resolvendo automaticamente para IP
+- **Requisições HTTP/HTTPS Reais**: Para domínios, envia requisições reais HTTP/HTTPS usando requests (acesso registrado no servidor)
+- **Serviço e Porta Customizáveis**: Permite simular apenas um serviço/porta específico com --service e --port
+- **Supressão de Warning SSL**: Ignora avisos de certificado SSL em conexões HTTPS para facilitar testes
 
 ## 🚀 Instalação
 
@@ -53,10 +57,12 @@ sudo ./tsunami.sh -i <IPs> -d <duração> [-p <pacotes>] [-l <laboratório>]
 
 ### Parâmetros
 
-- `-i, --ips`: IP(s) alvo (separados por vírgula) - **Obrigatório**
+- `-i, --ips`: IP(s) ou domínio(s) alvo (separados por vírgula) - **Obrigatório**
 - `-d, --duration`: Duração da simulação em segundos - **Obrigatório**
 - `-p, --packets`: Número de pacotes por serviço (padrão: 100)
 - `-l, --lab`: Tipo de laboratório (MAQ-1, MAQ-2, MAQ-3, MAQ-4)
+- `-s, --service`: Serviço único (ex: HTTP, HTTPS, FTP, SSH, SMTP)
+- `--port`: Porta única para o serviço definido
 - `-h, --help`: Mostra ajuda
 - `--install`: Instala dependências
 - `--status`: Mostra status dos laboratórios
@@ -96,6 +102,27 @@ sudo ./tsunami.sh -i 192.168.104.10 -d 180 -p 150 -l MAQ-4
 ```bash
 # Simulação com muitos pacotes
 sudo ./tsunami.sh -i 192.168.1.100 -d 600 -p 500
+```
+
+#### 6. Simulação para Domínio/URL
+
+```bash
+# Simula tráfego real HTTP para um domínio
+sudo ./tsunami.sh -i www.seusite.com -d 30
+```
+
+#### 7. Simulação HTTPS/Porta Customizada
+
+```bash
+# Simula requisições reais HTTPS para porta 443
+sudo ./tsunami.sh -i www.seusite.com -d 30 --service HTTPS --port 443
+```
+
+#### 8. Simulação HTTP em path específico (personalizável)
+
+```bash
+# (Se configurado) Simula requisições HTTP para /admin
+sudo ./tsunami.sh -i www.seusite.com -d 30 --service HTTP --port 80
 ```
 
 ## 🏭 Laboratórios Suportados
@@ -139,6 +166,29 @@ sudo ./tsunami.sh -i 192.168.1.100 -d 600 -p 500
 - Múltiplos IPs spoofed simultaneamente
 - Intervalos aleatórios entre pacotes (0.1-2s)
 - Padrões de tráfego realistas
+
+### Suporte a Domínios/URLs
+
+- Aceita domínios e URLs completos como alvo (ex: www.seusite.com, https://www.seusite.com)
+- Resolve automaticamente para IPv4
+- Usa o header Host correto nas requisições HTTP/HTTPS
+
+### Requisições HTTP/HTTPS Reais
+
+- Para domínios, utiliza a biblioteca requests para enviar requisições reais
+- Acesso é registrado no log do servidor web
+- Suporte a HTTPS (porta 443) com supressão automática de warning SSL
+
+### Serviço/Porta Customizáveis
+
+- Permite simular apenas um serviço/porta específico usando --service e --port
+- Exemplo: apenas HTTPS na porta 443, ou FTP na porta 21
+- Compatível com domínios e IPs
+
+### Supressão de Warning SSL
+
+- Avisos de certificado SSL inválido são ignorados automaticamente em conexões HTTPS
+- Facilita testes em ambientes de homologação
 
 ## 📊 Monitoramento
 
