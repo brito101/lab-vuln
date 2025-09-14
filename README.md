@@ -12,6 +12,7 @@ O ambiente do laboratório consiste em:
 - **MAQ-2**: Aplicação web Laravel com falhas de segurança intencionais
 - **MAQ-3**: Infraestrutura Linux com configurações vulneráveis
 - **MAQ-4**: Zimbra Collaboration Suite vulnerável à CVE-2024-45519 (RCE via SMTP)
+- **MAQ-5**: Ambiente Linux/Wordpress vulnerável para simulação de ataques web e automação
 
 ## Build do svcmon.go (Monitor de Serviços)
 
@@ -47,6 +48,20 @@ newgrp docker
 
 
 ### 2. Deploy dos Laboratórios
+
+#### MAQ-5 (Linux/Wordpress)
+```bash
+cd MAQ-5
+./setup.sh deploy      # Deploy completo
+./setup.sh start       # Iniciar ambiente
+./setup.sh stop        # Parar ambiente
+./setup.sh restart     # Reiniciar ambiente
+./setup.sh status      # Ver status
+./setup.sh logs        # Monitorar logs
+./setup.sh clean       # Limpar ambiente
+./setup.sh shell       # Acessar container
+./setup.sh attack-info # Informações de ataque
+```
 
 #### MAQ-1 (Windows Server 2022 DC)
 ```bash
@@ -119,6 +134,36 @@ cd MAQ-4 && ./setup.sh status
 ```
 
 ## Componentes
+
+### MAQ-5 (Linux/Wordpress)
+
+**Descrição**: Ambiente Linux com Wordpress vulnerável para simulação de ataques web, automação de artefatos e análise SOC.
+
+**Funcionalidades**:
+- Wordpress com plugins vulneráveis
+- Upload de arquivos sem validação
+- Scripts automatizados de ataque e ruído
+- Logs expostos para análise
+
+**Vulnerabilidades Configuradas**:
+- Plugins Wordpress vulneráveis
+- Upload de arquivos sem validação
+- Senhas fracas
+- Logs expostos
+
+**Acesso**:
+- **URL**: <http://localhost:8088>
+- **Admin**: admin / admin123
+
+**Comandos Úteis**:
+```bash
+cd MAQ-5
+./setup.sh deploy      # Deploy completo
+./setup.sh status      # Status dos serviços
+./setup.sh logs        # Monitorar logs
+./setup.sh shell       # Acessar shell
+./attack-test.sh       # Testar ataques
+```
 
 ### MAQ-1 (Windows Server 2022 Domain Controller)
 
@@ -521,6 +566,7 @@ Se o ambiente se tornar instável:
 - [MAQ-2/README.md](MAQ-2/README.md) - Documentação completa do laboratório Laravel
 - [MAQ-3/README.md](MAQ-3/README.md) - Documentação completa do laboratório Linux
 - [MAQ-4/README.md](MAQ-4/README.md) - Documentação completa do laboratório Zimbra CVE-2024-45519
+- [MAQ-5/README.md](MAQ-5/README.md) - Documentação completa do laboratório Linux/Wordpress
 
 ## Contribuindo
 
