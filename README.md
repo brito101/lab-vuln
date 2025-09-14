@@ -61,19 +61,6 @@ cd MAQ-1
 ./setup.sh clean       # Limpar ambiente
 ./setup.sh attack-info # Informações de ataque
 ```
-```bash
-cd MAQ-5
-./setup.sh deploy      # Deploy completo
-./setup.sh start       # Iniciar ambiente
-./setup.sh stop        # Parar ambiente
-./setup.sh restart     # Reiniciar ambiente
-./setup.sh status      # Ver status
-./setup.sh logs        # Monitorar logs
-./setup.sh clean       # Limpar ambiente
-./setup.sh shell       # Acessar container
-./setup.sh attack-info # Informações de ataque
-```
-
 #### MAQ-2 (Laravel)
 ```bash
 cd MAQ-2
