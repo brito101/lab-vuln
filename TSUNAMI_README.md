@@ -27,7 +27,6 @@ Simulador de tráfego avançado para laboratórios de segurança, projetado para
 
 ```bash
 # Clone o repositório (se necessário)
-cd /home/brito/lab-vuln
 
 # Instale dependências
 sudo ./tsunami.sh --install
