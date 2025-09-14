@@ -49,7 +49,18 @@ newgrp docker
 
 ### 2. Deploy dos Laboratórios
 
-#### MAQ-5 (Linux/Wordpress)
+#### MAQ-1 (Windows Server 2022 DC)
+```bash
+cd MAQ-1
+./setup.sh deploy      # Deploy completo
+./setup.sh start       # Iniciar ambiente
+./setup.sh stop        # Parar ambiente
+./setup.sh restart     # Reiniciar ambiente
+./setup.sh status      # Ver status
+./setup.sh logs        # Monitorar logs
+./setup.sh clean       # Limpar ambiente
+./setup.sh attack-info # Informações de ataque
+```
 ```bash
 cd MAQ-5
 ./setup.sh deploy      # Deploy completo
@@ -63,11 +74,57 @@ cd MAQ-5
 ./setup.sh attack-info # Informações de ataque
 ```
 
--#### MAQ-1 (Windows Server 2022 DC)
--#### MAQ-2 (Laravel)
--#### MAQ-3 (Linux)
--#### MAQ-4 (Zimbra CVE-2024-45519)
--#### MAQ-5 (Linux/Wordpress)
+#### MAQ-2 (Laravel)
+```bash
+cd MAQ-2
+./setup.sh deploy      # Deploy completo
+./setup.sh start       # Iniciar ambiente
+./setup.sh stop        # Parar ambiente
+./setup.sh restart     # Reiniciar ambiente
+./setup.sh status      # Ver status
+./setup.sh logs        # Monitorar logs
+./setup.sh clean       # Limpar ambiente
+./setup.sh shell       # Acessar container
+./setup.sh attack-info # Informações de ataque
+```
+#### MAQ-3 (Linux)
+```bash
+cd MAQ-3
+./setup.sh deploy      # Deploy completo
+./setup.sh start       # Iniciar ambiente
+./setup.sh stop        # Parar ambiente
+./setup.sh restart     # Reiniciar ambiente
+./setup.sh status      # Ver status
+./setup.sh logs        # Monitorar logs
+./setup.sh clean       # Limpar ambiente
+./setup.sh shell       # Acessar container
+./setup.sh attack-info # Informações de ataque
+```
+#### MAQ-4 (Zimbra CVE-2024-45519)
+```bash
+cd MAQ-4
+./setup.sh deploy      # Deploy completo
+./setup.sh start       # Iniciar ambiente
+./setup.sh stop        # Parar ambiente
+./setup.sh restart     # Reiniciar ambiente
+./setup.sh status      # Ver status
+./setup.sh logs        # Monitorar logs
+./setup.sh clean       # Limpar ambiente
+./setup.sh info        # Informações do lab
+```
+#### MAQ-5 (Linux/Wordpress)
+```bash
+cd MAQ-5
+./setup.sh deploy      # Deploy completo
+./setup.sh start       # Iniciar ambiente
+./setup.sh stop        # Parar ambiente
+./setup.sh restart     # Reiniciar ambiente
+./setup.sh status      # Ver status
+./setup.sh logs        # Monitorar logs
+./setup.sh clean       # Limpar ambiente
+./setup.sh shell       # Acessar container
+./setup.sh attack-info # Informações de ataque
+```
 ./setup.sh stop        # Parar ambiente
 ./setup.sh restart     # Reiniciar ambiente
 ./setup.sh status      # Ver status
@@ -135,6 +192,14 @@ cd MAQ-4 && ./setup.sh status
 
 ## Componentes
 
+### MAQ-1 (Windows Server 2022 Domain Controller)
+...existing code...
+### MAQ-2 (Aplicação Web Laravel)
+...existing code...
+### MAQ-3 (Infraestrutura Linux)
+...existing code...
+### MAQ-4 (Zimbra CVE-2024-45519)
+...existing code...
 ### MAQ-5 (Linux/Wordpress)
 
 **Descrição**: Ambiente Linux com Wordpress vulnerável para simulação de ataques web, automação de artefatos e análise SOC.
