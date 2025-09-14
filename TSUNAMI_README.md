@@ -51,7 +51,7 @@ sudo apt install python3-netifaces python3-psutil
 ### Sintaxe Básica
 
 ```bash
-sudo ./tsunami.sh -i <IPs> -d <duração> [-p <pacotes>] [-l <laboratório>]
+sudo ./tsunami.sh -i <IPs> -d <duração> [-p <pacotes>]
 ```
 
 ### Parâmetros
@@ -59,7 +59,6 @@ sudo ./tsunami.sh -i <IPs> -d <duração> [-p <pacotes>] [-l <laboratório>]
 - `-i, --ips`: IP(s) ou domínio(s) alvo (separados por vírgula) - **Obrigatório**
 - `-d, --duration`: Duração da simulação em segundos - **Obrigatório**
 - `-p, --packets`: Número de pacotes por serviço (padrão: 100)
-- `-l, --lab`: Tipo de laboratório (MAQ-1, MAQ-2, MAQ-3, MAQ-4)
 - `-s, --service`: Serviço único (ex: HTTP, HTTPS, FTP, SSH, SMTP)
 - `--port`: Porta única para o serviço definido
 - `-h, --help`: Mostra ajuda
@@ -82,35 +81,28 @@ sudo ./tsunami.sh -i 192.168.1.100 -d 60
 sudo ./tsunami.sh -i 192.168.1.100,192.168.1.101,192.168.1.102 -d 120
 ```
 
-#### 3. Laboratório Específico
-
-```bash
-# Simula tráfego específico para MAQ-1 (Windows Server)
-sudo ./tsunami.sh -i 192.168.101.10 -d 300 -p 200 -l MAQ-1
-```
-
-#### 4. Simulação Intensiva
+#### 3. Simulação Intensiva
 
 ```bash
 # Simulação com muitos pacotes
 sudo ./tsunami.sh -i 192.168.1.100 -d 600 -p 500
 ```
 
-#### 5. Simulação para Domínio/URL
+#### 4. Simulação para Domínio/URL
 
 ```bash
 # Simula tráfego real HTTP para um domínio
 sudo ./tsunami.sh -i www.seusite.com -d 30
 ```
 
-#### 6. Simulação HTTPS/Porta Customizada
+#### 5. Simulação HTTPS/Porta Customizada
 
 ```bash
 # Simula requisições reais HTTPS para porta 443
 sudo ./tsunami.sh -i www.seusite.com -d 30 --service HTTPS --port 443
 ```
 
-#### 7. Simulação HTTP em path específico (personalizável)
+#### 6. Simulação HTTP em path específico (personalizável)
 
 ```bash
 # (Se configurado) Simula requisições HTTP para /admin
@@ -205,7 +197,7 @@ sudo ./tsunami.sh --install
 ### Executar Diretamente com Python
 
 ```bash
-sudo python3 tsunami_traffic_simulator.py -i 192.168.1.100 -d 60 -p 100 -l MAQ-1
+sudo python3 tsunami_traffic_simulator.py -i 192.168.1.100 -d 60 -p 100
 ```
 
 ## ⚠️ Considerações de Segurança
