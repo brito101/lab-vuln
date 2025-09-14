@@ -1,12 +1,11 @@
 # 🌊 Tsunami Traffic Simulator
 
-Simulador de tráfego avançado para laboratórios de segurança, projetado para ocultar o IP do atacante gerando tráfego de diferentes IPs spoofed que consomem serviços nos laboratórios MAQ-1, MAQ-2, MAQ-3 e MAQ-4.
+Simulador de tráfego avançado para laboratórios de segurança, projetado para ocultar o IP do atacante gerando tráfego de diferentes IPs spoofed que consomem serviços nos laboratórios.
 
 ## 🎯 Características
 
 - **Spoofing de IP**: Gera tráfego de IPs aleatórios para ocultar o atacante
 - **Múltiplos Protocolos**: Suporte a TCP, UDP e requisições HTTP realistas
-- **Laboratórios Integrados**: Configurações específicas para MAQ-1, MAQ-2, MAQ-3 e MAQ-4
 - **Tráfego Realista**: Simula comportamento humano com intervalos aleatórios
 - **Estatísticas Detalhadas**: Monitoramento em tempo real e relatórios finais
 - **Interface Amigável**: Script bash wrapper com cores e formatação
