@@ -63,11 +63,11 @@ cd MAQ-5
 ./setup.sh attack-info # Informações de ataque
 ```
 
-#### MAQ-1 (Windows Server 2022 DC)
-```bash
-cd MAQ-1
-./setup.sh deploy      # Deploy completo
-./setup.sh start       # Iniciar ambiente
+-#### MAQ-1 (Windows Server 2022 DC)
+-#### MAQ-2 (Laravel)
+-#### MAQ-3 (Linux)
+-#### MAQ-4 (Zimbra CVE-2024-45519)
+-#### MAQ-5 (Linux/Wordpress)
 ./setup.sh stop        # Parar ambiente
 ./setup.sh restart     # Reiniciar ambiente
 ./setup.sh status      # Ver status
@@ -165,11 +165,11 @@ cd MAQ-5
 ./attack-test.sh       # Testar ataques
 ```
 
-### MAQ-1 (Windows Server 2022 Domain Controller)
-
-**Descrição**: Servidor Windows Server 2022 configurado como Domain Controller com Active Directory vulnerável para treinamento em segurança de infraestrutura Windows.
-
-**Funcionalidades**:
+-### MAQ-1 (Windows Server 2022 Domain Controller)
+-### MAQ-2 (Aplicação Web Laravel)
+-### MAQ-3 (Infraestrutura Linux)
+-### MAQ-4 (Zimbra CVE-2024-45519)
+-### MAQ-5 (Linux/Wordpress)
 
 - Windows Server 2022 Standard Edition
 - Active Directory Domain Services (AD DS)
