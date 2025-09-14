@@ -89,62 +89,33 @@ sudo ./tsunami.sh -i 192.168.1.100,192.168.1.101,192.168.1.102 -d 120
 sudo ./tsunami.sh -i 192.168.101.10 -d 300 -p 200 -l MAQ-1
 ```
 
-#### 4. Laboratório Zimbra (MAQ-4)
-
-```bash
-# Simula tráfego para Zimbra com foco em SMTP
-sudo ./tsunami.sh -i 192.168.104.10 -d 180 -p 150 -l MAQ-4
-```
-
-#### 5. Simulação Intensiva
+#### 4. Simulação Intensiva
 
 ```bash
 # Simulação com muitos pacotes
 sudo ./tsunami.sh -i 192.168.1.100 -d 600 -p 500
 ```
 
-#### 6. Simulação para Domínio/URL
+#### 5. Simulação para Domínio/URL
 
 ```bash
 # Simula tráfego real HTTP para um domínio
 sudo ./tsunami.sh -i www.seusite.com -d 30
 ```
 
-#### 7. Simulação HTTPS/Porta Customizada
+#### 6. Simulação HTTPS/Porta Customizada
 
 ```bash
 # Simula requisições reais HTTPS para porta 443
 sudo ./tsunami.sh -i www.seusite.com -d 30 --service HTTPS --port 443
 ```
 
-#### 8. Simulação HTTP em path específico (personalizável)
+#### 7. Simulação HTTP em path específico (personalizável)
 
 ```bash
 # (Se configurado) Simula requisições HTTP para /admin
 sudo ./tsunami.sh -i www.seusite.com -d 30 --service HTTP --port 80
 ```
-
-## 🏭 Laboratórios Suportados
-
-### MAQ-1: Windows Server 2022 Domain Controller
-
-- **Rede**: 192.168.101.0/24
-- **Serviços**: RDP (3389), DNS (53), LDAP (389), SMB (445), Kerberos (88), Web-Viewer (8006)
-
-### MAQ-2: Laravel Web Application
-
-- **Rede**: 192.168.201.0/24
-- **Serviços**: HTTP (80), MySQL (3306), Redis (6379), SSH (22)
-
-### MAQ-3: Linux Infrastructure
-
-- **Rede**: 192.168.200.0/24
-- **Serviços**: SSH (2222), FTP (2121), SMB (139/445), HTTP (8080)
-
-### MAQ-4: Zimbra CVE-2024-45519
-
-- **Rede**: 192.168.104.0/24
-- **Serviços**: SMTP (25), HTTP (80), HTTPS (443), SSH (22), Admin-Console (7071), IMAP (143), POP3 (110)
 
 ## 🔧 Funcionalidades Técnicas
 
