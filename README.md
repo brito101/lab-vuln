@@ -131,19 +131,6 @@ cd MAQ-4 && ./setup.sh status
 cd MAQ-5 && ./setup.sh status
 ```
 
-## Componentes
-
-### MAQ-1 (Windows Server 2022 Domain Controller)
-...existing code...
-### MAQ-2 (Aplicação Web Laravel)
-...existing code...
-### MAQ-3 (Infraestrutura Linux)
-...existing code...
-### MAQ-4 (Zimbra CVE-2024-45519)
-...existing code...
-### MAQ-5 (Linux/Wordpress)
-
-
 ## Considerações de Segurança
 
 ⚠️ **IMPORTANTE**: Este é um ambiente de treinamento com vulnerabilidades intencionais. **NÃO USE EM PRODUÇÃO**.
