@@ -336,48 +336,237 @@ test_brute_force() {
 }
 
 # Função principal
+run_artefatos() {
+    print_status "Executando artefatos automatizados de ataque..."
+    local artefatos=(
+        "trainees/artefatos/exfiltracao_simulada.sh"
+        "trainees/artefatos/flood_logs_linux.sh"
+        "trainees/artefatos/portscan_simulado.sh"
+        "trainees/artefatos/ransomware_simulado_linux.sh"
+        "trainees/artefatos/persistencia_simulada.sh"
+        "trainees/artefatos/ransomware_restore_linux.sh"
+        "trainees/artefatos/svcmon.py"
+    )
+    for script in "${artefatos[@]}"; do
+        if [[ -f "$script" ]]; then
+            print_warning "Executando artefato: $script"
+            case "$script" in
+                *.py)
+                    python3 "$script" &
+                    ;;
+                *.sh)
+                    bash "$script"
+                    ;;
+                *.php)
+                    print_status "Webshell disponível para upload manual: $script"
+                    ;;
+                *)
+                    print_error "Tipo de artefato não suportado: $script"
+                    ;;
+            esac
+            sleep 1
+        else
+            print_error "Artefato não encontrado: $script"
+        fi
+    done
+}
+
 main() {
+    # Detecta nome do container Laravel
+    get_laravel_container() {
+        docker ps --format '{{.Names}} {{.Image}}' | grep 'sail-8.2/app' | awk '{print $1}' | head -n1
+    }
+
+    ensure_artefato_in_container() {
+        local artefato="$1"
+        local container="$2"
+        docker exec "$container" test -f "/var/www/html/artefatos/$artefato" || {
+            print_warning "Artefato $artefato não existe no container, copiando..."
+            docker cp "trainees/artefatos/$artefato" "$container:/var/www/html/artefatos/$artefato"
+        }
+    }
     print_header
-    
-    # Verificar conectividade
     check_connectivity || {
         print_error "Falha na conectividade. Verifique se o ambiente está rodando."
         exit 1
     }
-    
     echo
-    
-    # Executar testes
-    test_sensitive_files
-    echo
-    
-    test_file_upload
-    echo
-    
-    test_lfi
-    echo
-    
-    test_sql_injection
-    echo
-    
-    test_xss
-    echo
-    
-    test_directory_traversal
-    echo
-    
-    test_command_injection
-    echo
-    
-    test_api_access
-    echo
-    
-    test_brute_force
-    echo
-    
-    print_success "Todos os testes de ataque foram executados!"
-    print_status "Verifique os logs para capturar as atividades maliciosas."
-    echo
+    while true; do
+    echo "Selecione uma opção:"
+    echo "1) Executar TODOS os testes e artefatos"
+    echo "2) Executar todos os artefatos automatizados"
+    echo "3) Executar apenas o agente svcmon"
+    echo "4) Executar exfiltracao_simulada.sh"
+    echo "5) Executar flood_logs_linux.sh"
+    echo "6) Executar portscan_simulado.sh"
+    echo "7) Executar ransomware_simulado_linux.sh"
+    echo "8) Executar persistencia_simulada.sh"
+    echo "9) Executar ransomware_restore_linux.sh"
+    echo "10) Testar acesso a arquivos sensíveis"
+    echo "11) Testar upload de arquivos maliciosos"
+    echo "12) Testar LFI (Local File Inclusion)"
+    echo "13) Testar SQL Injection"
+    echo "14) Testar XSS (Cross-Site Scripting)"
+    echo "15) Testar Directory Traversal"
+    echo "16) Testar Command Injection"
+    echo "17) Testar acesso a APIs"
+    echo "18) Testar brute force"
+    echo "19) Executar exfiltracao_simulada.sh como root (docker)"
+    echo "20) Executar flood_logs_linux.sh como root (docker)"
+    echo "21) Executar portscan_simulado.sh como root (docker)"
+    echo "22) Executar ransomware_simulado_linux.sh como root (docker)"
+    echo "23) Executar persistencia_simulada.sh como root (docker)"
+    echo "24) Executar ransomware_restore_linux.sh como root (docker)"
+    echo "0) Sair"
+        read -p "Opção: " opt
+    case $opt in
+            1)
+                run_artefatos; echo
+                test_sensitive_files; echo
+                test_file_upload; echo
+                test_lfi; echo
+                test_sql_injection; echo
+                test_xss; echo
+                test_directory_traversal; echo
+                test_command_injection; echo
+                test_api_access; echo
+                test_brute_force; echo
+                print_success "Todos os testes de ataque foram executados!"
+                ;;
+            2)
+                run_artefatos; echo
+                ;;
+            3)
+                print_status "Executando agente svcmon..."
+                python3 trainees/artefatos/svcmon.py &
+                echo
+                ;;
+            4)
+                print_status "Executando exfiltracao_simulada.sh..."
+                if [[ ! -f trainees/artefatos/exfiltracao_simulada.sh ]]; then
+                    print_warning "Artefato não encontrado, copiando do diretório principal..."
+                    cp /home/brito/lab-vuln/artefatos/exfiltracao_simulada.sh trainees/artefatos/ 2>/dev/null || print_error "Falha ao copiar artefato."
+                fi
+                bash trainees/artefatos/exfiltracao_simulada.sh
+                echo
+                ;;
+            5)
+                print_status "Executando flood_logs_linux.sh..."
+                if [[ ! -f trainees/artefatos/flood_logs_linux.sh ]]; then
+                    print_warning "Artefato não encontrado, copiando do diretório principal..."
+                    cp /home/brito/lab-vuln/artefatos/flood_logs_linux.sh trainees/artefatos/ 2>/dev/null || print_error "Falha ao copiar artefato."
+                fi
+                bash trainees/artefatos/flood_logs_linux.sh
+                echo
+                ;;
+            6)
+                print_status "Executando portscan_simulado.sh..."
+                if [[ ! -f trainees/artefatos/portscan_simulado.sh ]]; then
+                    print_warning "Artefato não encontrado, copiando do diretório principal..."
+                    cp /home/brito/lab-vuln/artefatos/portscan_simulado.sh trainees/artefatos/ 2>/dev/null || print_error "Falha ao copiar artefato."
+                fi
+                bash trainees/artefatos/portscan_simulado.sh
+                echo
+                ;;
+            7)
+                print_status "Executando ransomware_simulado_linux.sh..."
+                if [[ ! -f trainees/artefatos/ransomware_simulado_linux.sh ]]; then
+                    print_warning "Artefato não encontrado, copiando do diretório principal..."
+                    cp /home/brito/lab-vuln/artefatos/ransomware_simulado_linux.sh trainees/artefatos/ 2>/dev/null || print_error "Falha ao copiar artefato."
+                fi
+                bash trainees/artefatos/ransomware_simulado_linux.sh
+                echo
+                ;;
+            8)
+                print_status "Executando persistencia_simulada.sh..."
+                if [[ ! -f trainees/artefatos/persistencia_simulada.sh ]]; then
+                    print_warning "Artefato não encontrado, copiando do diretório principal..."
+                    cp /home/brito/lab-vuln/artefatos/persistencia_simulada.sh trainees/artefatos/ 2>/dev/null || print_error "Falha ao copiar artefato."
+                fi
+                bash trainees/artefatos/persistencia_simulada.sh
+                echo
+                ;;
+            9)
+                print_status "Executando ransomware_restore_linux.sh..."
+                if [[ ! -f trainees/artefatos/ransomware_restore_linux.sh ]]; then
+                    print_warning "Artefato não encontrado, copiando do diretório principal..."
+                    cp /home/brito/lab-vuln/artefatos/ransomware_restore_linux.sh trainees/artefatos/ 2>/dev/null || print_error "Falha ao copiar artefato."
+                fi
+                bash trainees/artefatos/ransomware_restore_linux.sh
+                echo
+                ;;
+            10)
+                test_sensitive_files; echo
+                ;;
+            11)
+                test_file_upload; echo
+                ;;
+            12)
+                test_lfi; echo
+                ;;
+            13)
+                test_sql_injection; echo
+                ;;
+            14)
+                test_xss; echo
+                ;;
+            15)
+                test_directory_traversal; echo
+                ;;
+            16)
+                test_command_injection; echo
+                ;;
+            17)
+                test_api_access; echo
+                ;;
+            18)
+                test_brute_force; echo
+                ;;
+            19)
+                print_status "Executando exfiltracao_simulada.sh como root via docker..."
+                CONTAINER=$(get_laravel_container)
+                if [ -z "$CONTAINER" ]; then print_error "Container Laravel não encontrado!"; else ensure_artefato_in_container "exfiltracao_simulada.sh" "$CONTAINER"; docker exec -u 0 "$CONTAINER" bash /var/www/html/artefatos/exfiltracao_simulada.sh; fi
+                echo
+                ;;
+            20)
+                print_status "Executando flood_logs_linux.sh como root via docker..."
+                CONTAINER=$(get_laravel_container)
+                if [ -z "$CONTAINER" ]; then print_error "Container Laravel não encontrado!"; else ensure_artefato_in_container "flood_logs_linux.sh" "$CONTAINER"; docker exec -u 0 "$CONTAINER" bash /var/www/html/artefatos/flood_logs_linux.sh; fi
+                echo
+                ;;
+            21)
+                print_status "Executando portscan_simulado.sh como root via docker..."
+                CONTAINER=$(get_laravel_container)
+                if [ -z "$CONTAINER" ]; then print_error "Container Laravel não encontrado!"; else ensure_artefato_in_container "portscan_simulado.sh" "$CONTAINER"; docker exec -u 0 "$CONTAINER" bash /var/www/html/artefatos/portscan_simulado.sh; fi
+                echo
+                ;;
+            22)
+                print_status "Executando ransomware_simulado_linux.sh como root via docker..."
+                CONTAINER=$(get_laravel_container)
+                if [ -z "$CONTAINER" ]; then print_error "Container Laravel não encontrado!"; else ensure_artefato_in_container "ransomware_simulado_linux.sh" "$CONTAINER"; docker exec -u 0 "$CONTAINER" bash /var/www/html/artefatos/ransomware_simulado_linux.sh; fi
+                echo
+                ;;
+            23)
+                print_status "Executando persistencia_simulada.sh como root via docker..."
+                CONTAINER=$(get_laravel_container)
+                if [ -z "$CONTAINER" ]; then print_error "Container Laravel não encontrado!"; else ensure_artefato_in_container "persistencia_simulada.sh" "$CONTAINER"; docker exec -u 0 "$CONTAINER" bash /var/www/html/artefatos/persistencia_simulada.sh; fi
+                echo
+                ;;
+            24)
+                print_status "Executando ransomware_restore_linux.sh como root via docker..."
+                CONTAINER=$(get_laravel_container)
+                if [ -z "$CONTAINER" ]; then print_error "Container Laravel não encontrado!"; else ensure_artefato_in_container "ransomware_restore_linux.sh" "$CONTAINER"; docker exec -u 0 "$CONTAINER" bash /var/www/html/artefatos/ransomware_restore_linux.sh; fi
+                echo
+                ;;
+            0)
+                print_status "Saindo..."; break
+                ;;
+            *)
+                print_error "Opção inválida. Tente novamente."
+                ;;
+        esac
+        echo
+    done
     print_status "Para monitorar logs em tempo real:"
     echo "  tail -f logs/nginx/access.log logs/laravel/laravel.log logs/app/application.log"
 }

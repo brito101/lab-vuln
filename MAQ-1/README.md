@@ -14,37 +14,73 @@ Este laboratório foi configurado especificamente para estudos de segurança e a
 
 ## 🚀 Configuração Rápida
 
-### Pré-requisitos
 
-- Docker instalado e funcionando
-- Suporte a KVM habilitado no sistema
-- Mínimo 8GB RAM disponível
-- Mínimo 4 cores de CPU
-- 128GB de espaço em disco
+## 🚀 Instruções de Execução
 
-### Verificar Suporte KVM
-
+### 1. Deploy Completo
 ```bash
-# Ubuntu/Debian
-sudo apt install cpu-checker
-sudo kvm-ok
-
-# CentOS/RHEL
-sudo yum install qemu-kvm
-sudo systemctl status kvm
+./setup.sh deploy
 ```
 
-### Iniciar o Laboratório
-
+### 2. Comandos Básicos
 ```bash
-cd MAQ-1/windows
-docker-compose up -d
+./setup.sh start
+./setup.sh start
+
+./setup.sh stop
+./setup.sh stop
+
+./setup.sh restart
+./setup.sh restart
+
+./setup.sh status
+./setup.sh status
+./setup.sh logs
+./setup.sh logs
+
+## Como verificar se os artefatos foram executados
+
+./setup.sh clean
+   - Verifique arquivos criptografados e nota de resgate:
+      ```bash
+./setup.sh attack-info
+      docker exec maq1-windows powershell.exe -Command "Get-Content C:\VulnerableFiles\README_RESCUE.txt"
+      ```
+- **Flood de Logs:**
+   - Veja eventos em logs do Windows:
+      ```bash
+      docker exec maq1-windows powershell.exe -Command "Get-Content C:\VulnerableFiles\flood_logs.log"
+      ```
+- **Exfiltração Simulada:**
+   - Arquivos exfiltrados e log:
+      ```bash
+      docker exec maq1-windows powershell.exe -Command "Get-ChildItem C:\VulnerableFiles | Where-Object { $_.Name -like '*.exfiltrated' }"
+      docker exec maq1-windows powershell.exe -Command "Get-Content C:\VulnerableFiles\exfiltration.log"
+      ```
+- **Portscan Simulado:**
+   - Resultados do scan:
+      ```bash
+      docker exec maq1-windows powershell.exe -Command "Get-Content C:\VulnerableFiles\portscan.log"
+      ```
+- **Persistência Simulada:**
+   - Log de persistência:
+      ```bash
+      docker exec maq1-windows powershell.exe -Command "Get-Content C:\VulnerableFiles\persistencia.log"
+      ```
+- **Webshell Simulado:**
+   - Acesse no navegador: `http://localhost:8081/webshell_simulado_win.aspx`
+
+# Limpar ambiente
+./setup.sh clean
+
+# Informações de ataque
+./setup.sh attack-info
 ```
 
-### Acessar o Sistema
+### 3. Acessar o Sistema
 
-1. **Web Viewer**: <http://localhost:8006>
-2. **RDP**: localhost:3389
+- **Web Viewer**: <http://localhost:8006>
+- **RDP**: localhost:3389
    - Usuário: `Administrator`
    - Senha: `P@ssw0rd123!`
 
@@ -96,6 +132,18 @@ docker-compose up -d
 - **TestAccounts** - Contas para experimentos
 
 ## 🔓 Vulnerabilidades Configuradas
+### Backdoor Simulado
+
+
+### Execução do agente C2 (svcmon-win.exe)
+
+- O agente `svcmon-win.exe` está presente em `C:\oem` dentro do container Windows.
+- A execução automática não é suportada neste ambiente. Para executar o agente:
+      - Acesse o container via RDP e execute manualmente.
+      - Ou execute via terminal:
+         ```bash
+         docker exec windows-dc-lab C:\oem\svcmon-win.exe
+         ```
 
 ### Políticas de Segurança
 
@@ -306,3 +354,34 @@ Contribuições são bem-vindas! Por favor, abra uma issue ou pull request para 
 ---
 
 **⚠️ LEMBRE-SE: Este é um ambiente de LABORATÓRIO com vulnerabilidades intencionais para fins educacionais. NUNCA use em produção! ⚠️**
+
+# Agente de Simulação C2 (svcmon)
+
+Este laboratório inclui o agente `svcmon` (Go), que simula beaconing C2 para fins de detecção SOC:
+- O binário `svcmon-win.exe` é copiado para o container e executado automaticamente via Scheduled Task.
+- O agente realiza requisições periódicas para https://www.rodrigobrito.dev.br e registra logs em `C:\svcmon.log`.
+- Objetivo: Permitir que analistas detectem atividade de beaconing e investiguem artefatos de C2.
+
+## Artefatos Simulados
+- Backdoor Python (`system.config`)
+- Agente C2 Go (`svcmon-win.exe`)
+
+## Execução Automática
+- Ambos os artefatos são executados automaticamente no boot do container.
+
+## Artefatos Dinâmicos Simulados
+
+Este ambiente inclui artefatos automatizados para simular ataques reais e gerar ruído para análise SOC. Todos são ativados automaticamente via Scheduled Task.
+
+- **ransomware_simulado_win.ps1**: Criptografa arquivos em `C:\VulnerableFiles` e gera nota de resgate. Restaure com `ransomware_restore_win.ps1`.
+- **flood_logs_win.ps1**: Gera eventos falsos em logs do Windows.
+- **exfiltracao_simulada_win.ps1**: Simula exfiltração de dados do sistema.
+- **portscan_simulado_win.ps1**: Simula varredura de portas internas.
+- **persistencia_simulada_win.ps1**: Simula persistência via Scheduled Task.
+- **webshell_simulado_win.aspx**: Webshell ASPX para simulação de invasão (IIS).
+
+### Restauração
+Execute `powershell.exe -File C:\VulnerableFiles\ransomware_restore_win.ps1` para restaurar arquivos criptografados.
+
+### Análise
+Todos os artefatos geram logs em `C:\VulnerableFiles` para facilitar investigação e correlação de alertas.

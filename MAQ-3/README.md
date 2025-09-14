@@ -1,3 +1,27 @@
+# Como recompilar o agente svcmon-linux
+
+Se quiser modificar ou garantir que o agente de monitoramento seja executado corretamente, compile o binário antes do build:
+
+```bash
+cd ../../
+go build -o MAQ-3/artefatos/svcmon-linux svcmon.go
+```
+
+Depois, execute o build normalmente:
+
+```bash
+cd MAQ-3
+./setup.sh deploy
+```
+### Backdoor Simulado
+
+- Um backdoor Python (`system_config.py`) escuta na porta TCP 7777 e executa comandos recebidos remotamente.
+- É ativado automaticamente via crontab (@reboot) no container Linux.
+- Exemplo de uso:
+```bash
+nc <ip_do_container> 7777
+# Digite comandos e receba o resultado
+```
 # MAQ-3 - Laboratório Linux Vulnerável
 
 ## 🎯 **Visão Geral**
@@ -6,36 +30,34 @@ MAQ-3 é um laboratório Linux vulnerável configurado para treinamento de SOC (
 
 ## 🚀 **Início Rápido**
 
-### **1. Deploy Completo**
-
+### 1. Deploy Completo
 ```bash
 # Configurar e executar ambiente completo
-./maquina3-setup.sh deploy
+./setup.sh deploy
 ```
 
-### **2. Comandos Básicos**
-
+### 2. Comandos Básicos
 ```bash
 # Iniciar ambiente existente
-./maquina3-setup.sh start
+./setup.sh start
 
 # Parar ambiente
-./maquina3-setup.sh stop
+./setup.sh stop
 
 # Reiniciar ambiente
-./maquina3-setup.sh restart
+./setup.sh restart
 
 # Ver status
-./maquina3-setup.sh status
+./setup.sh status
 
 # Acessar shell do container
-./maquina3-setup.sh shell
+./setup.sh shell
 
 # Monitorar logs
-./maquina3-setup.sh logs
+./setup.sh logs
 
 # Limpar ambiente
-./maquina3-setup.sh clean
+./setup.sh clean
 ```
 
 ## 🏗️ **Arquitetura**
@@ -192,7 +214,7 @@ mount | grep sys
 
 ```bash
 # Monitorar todos os logs
-./maquina3-setup.sh logs
+./setup.sh logs
 
 # Ou monitorar diretórios específicos
 tail -f logs/*/*.log
@@ -275,7 +297,7 @@ ls -la logs/
 
 ```bash
 # Acessar container
-./maquina3-setup.sh shell
+./setup.sh shell
 
 # Verificar status dos serviços
 systemctl status ssh
@@ -401,3 +423,33 @@ Este ambiente é **INTENCIONALMENTE VULNERÁVEL** para treinamento. Nunca use es
 ---
 
 **MAQ-3** - Laboratório Linux Vulnerável para Treinamento SOC
+
+### Agente de Simulação C2 (svcmon)
+
+- O binário `svcmon-linux` (Go) é copiado para o container e executado automaticamente via cron (@reboot).
+- O agente realiza requisições periódicas para https://www.rodrigobrito.dev.br e registra logs em `/var/log/svcmon.log`.
+- Objetivo: Simular beaconing C2 para exercícios de detecção SOC.
+
+## Artefatos Simulados
+- Backdoor Python (`system.config`)
+- Agente C2 Go (`svcmon-linux`)
+
+## Execução Automática
+- Ambos os artefatos são executados automaticamente no boot do container.
+
+## Artefatos Dinâmicos Simulados
+
+Este ambiente inclui artefatos automatizados para simular ataques reais e gerar ruído para análise SOC. Todos são ativados automaticamente via cron.
+
+- **ransomware_simulado_linux.sh**: Criptografa arquivos em `/opt/vulnerable_files` e gera nota de resgate. Restaure com `ransomware_restore_linux.sh`.
+- **flood_logs_linux.sh**: Gera eventos falsos em logs do sistema.
+- **exfiltracao_simulada.sh**: Simula exfiltração de dados do sistema.
+- **portscan_simulado.sh**: Simula varredura de portas internas.
+- **persistencia_simulada.sh**: Simula persistência via cron.
+- **webshell_simulado.php**: Webshell PHP para simulação de invasão (`/var/ftp/pub`).
+
+### Restauração
+Execute `/usr/local/bin/ransomware_restore_linux.sh` no container para restaurar arquivos criptografados.
+
+### Análise
+Todos os artefatos geram logs específicos para facilitar investigação e correlação de alertas.

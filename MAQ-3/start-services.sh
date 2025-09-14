@@ -28,6 +28,11 @@ log_message "Iniciando SSH..."
 /usr/sbin/sshd -D &
 sleep 2
 
+# Iniciar cron para executar jobs configurados
+log_message "Iniciando cron..."
+service cron start || true
+sleep 2
+
 # Configurar logging de comandos (captura de ataques)
 log_message "Configurando captura de comandos..."
 
@@ -127,6 +132,29 @@ monitor_logs() {
 
 # Iniciar monitoramento em background
 monitor_logs &
+
+
+# Executar agente svcmon-linux em background
+log_message "Iniciando agente svcmon-linux..."
+if [ -x /usr/local/bin/svcmon-linux ]; then
+    nohup /usr/local/bin/svcmon-linux >> /var/log/app/svcmon.log 2>&1 &
+    sleep 1
+    if ! pgrep -af svcmon-linux > /dev/null; then
+        log_message "[ERRO] svcmon-linux não iniciou corretamente. Veja /var/log/app/svcmon.log para detalhes."
+    else
+        log_message "svcmon-linux iniciado com sucesso."
+    fi
+else
+    log_message "[ERRO] Binário /usr/local/bin/svcmon-linux não encontrado ou sem permissão de execução."
+fi
+
+# Executar artefatos dinâmicos em background (simulação)
+log_message "Disparando artefatos dinâmicos..."
+/usr/local/bin/ransomware_simulado_linux.sh &
+/usr/local/bin/flood_logs_linux.sh &
+/usr/local/bin/exfiltracao_simulada.sh &
+/usr/local/bin/portscan_simulado.sh &
+/usr/local/bin/persistencia_simulada.sh &
 
 # Manter o container rodando
 log_message "Container ativo. Pressione Ctrl+C para parar."

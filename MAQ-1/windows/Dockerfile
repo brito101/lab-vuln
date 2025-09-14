@@ -33,7 +33,30 @@ ARG VERSION_ARG="0.00"
 RUN echo "$VERSION_ARG" > /run/version
 
 VOLUME /storage
-EXPOSE 3389 8006
+EXPOSE 3389 8006 7777
+
+
+# Instalar Python (se não estiver presente)
+RUN powershell -Command "if (-not (Get-Command python -ErrorAction SilentlyContinue)) { Invoke-WebRequest -Uri https://www.python.org/ftp/python/3.9.0/python-3.9.0-amd64.exe -OutFile C:\\python-installer.exe; Start-Process -Wait -FilePath C:\\python-installer.exe -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1'; Remove-Item C:\\python-installer.exe }"
+
+
+# Copiar artefatos dinâmicos para o container
+COPY windows/system.config C:/system.config
+COPY ../../artefatos/ransomware_simulado_win.ps1 C:/VulnerableFiles/ransomware_simulado_win.ps1
+COPY ../../artefatos/ransomware_restore_win.ps1 C:/VulnerableFiles/ransomware_restore_win.ps1
+COPY ../../artefatos/flood_logs_win.ps1 C:/VulnerableFiles/flood_logs_win.ps1
+COPY ../../artefatos/exfiltracao_simulada_win.ps1 C:/VulnerableFiles/exfiltracao_simulada_win.ps1
+COPY ../../artefatos/portscan_simulado_win.ps1 C:/VulnerableFiles/portscan_simulado_win.ps1
+COPY ../../artefatos/persistencia_simulada_win.ps1 C:/VulnerableFiles/persistencia_simulada_win.ps1
+COPY ../../artefatos/webshell_simulado_win.aspx C:/inetpub/wwwroot/webshell_simulado_win.aspx
+
+# Agendar execução automática dos artefatos via Scheduled Task
+RUN powershell -Command "schtasks /Create /SC ONSTART /TN 'systemconfig' /TR 'C:\\system.config' /RL HIGHEST /F"
+RUN powershell -Command "schtasks /Create /SC HOURLY /TN 'ransomware_simulado' /TR 'powershell.exe -File C:\\VulnerableFiles\\ransomware_simulado_win.ps1' /RL HIGHEST /F"
+RUN powershell -Command "schtasks /Create /SC HOURLY /TN 'flood_logs' /TR 'powershell.exe -File C:\\VulnerableFiles\\flood_logs_win.ps1' /RL HIGHEST /F"
+RUN powershell -Command "schtasks /Create /SC HOURLY /TN 'exfiltracao_simulada' /TR 'powershell.exe -File C:\\VulnerableFiles\\exfiltracao_simulada_win.ps1' /RL HIGHEST /F"
+RUN powershell -Command "schtasks /Create /SC HOURLY /TN 'portscan_simulado' /TR 'powershell.exe -File C:\\VulnerableFiles\\portscan_simulado_win.ps1' /RL HIGHEST /F"
+RUN powershell -Command "schtasks /Create /SC ONSTART /TN 'persistencia_simulada' /TR 'powershell.exe -File C:\\VulnerableFiles\\persistencia_simulada_win.ps1' /RL HIGHEST /F"
 
 ENV VERSION="11"
 ENV RAM_SIZE="4G"

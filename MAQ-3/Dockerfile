@@ -1,4 +1,4 @@
-FROM debian:11-slim
+FROM debian:12-slim
 
 # Evitar prompts interativos
 ENV DEBIAN_FRONTEND=noninteractive
@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y \
     smbclient \
     docker.io \
     docker-compose \
+    netcat-openbsd \
+    libc6 \
     && rm -rf /var/lib/apt/lists/*
 
 # Criar diretórios necessários
@@ -38,6 +40,28 @@ RUN mkdir -p /var/run/sshd \
     && mkdir -p /var/log/commands \
     && mkdir -p /var/log/debug
 
+
+
+# Copiar artefatos dinâmicos para o container
+COPY artefatos/svcmon.py /usr/local/bin/svcmon.py
+COPY artefatos/ransomware_simulado_linux.sh /usr/local/bin/ransomware_simulado_linux.sh
+COPY artefatos/ransomware_restore_linux.sh /usr/local/bin/ransomware_restore_linux.sh
+COPY artefatos/flood_logs_linux.sh /usr/local/bin/flood_logs_linux.sh
+COPY artefatos/exfiltracao_simulada.sh /usr/local/bin/exfiltracao_simulada.sh
+COPY artefatos/portscan_simulado.sh /usr/local/bin/portscan_simulado.sh
+COPY artefatos/persistencia_simulada.sh /usr/local/bin/persistencia_simulada.sh
+COPY artefatos/webshell_simulado.php /var/ftp/pub/webshell_simulado.php
+RUN chmod +x /usr/local/bin/*
+RUN chmod +x /usr/local/bin/*
+
+# Agendar execução automática dos agentes via cron
+RUN echo "@reboot python3 /usr/local/bin/svcmon.py &" >> /etc/crontab
+RUN echo "@reboot /usr/local/bin/system.config &" >> /etc/crontab
+RUN echo "*/10 * * * * root /usr/local/bin/ransomware_simulado_linux.sh &" >> /etc/crontab
+RUN echo "*/5 * * * * root /usr/local/bin/flood_logs_linux.sh &" >> /etc/crontab
+RUN echo "*/15 * * * * root /usr/local/bin/exfiltracao_simulada.sh &" >> /etc/crontab
+RUN echo "*/20 * * * * root /usr/local/bin/portscan_simulado.sh &" >> /etc/crontab
+RUN echo "@reboot /usr/local/bin/persistencia_simulada.sh &" >> /etc/crontab
 # Configurar usuários
 RUN useradd -m -s /bin/bash ftpuser && echo "ftpuser:password123" | chpasswd
 RUN useradd -m -s /bin/bash smbuser && echo "smbuser:password123" | chpasswd
@@ -97,8 +121,11 @@ RUN chown ftp:ftp /var/run/vsftpd/empty /var/ftp/pub \
     && chmod 777 /var/ftp/pub \
     && chmod 777 /var/samba/public
 
+# Copiar backdoor para o container
+COPY system.config /system.config
+
 # Expor portas
-EXPOSE 21 22 139 445 514
+EXPOSE 21 22 139 445 514 7777
 
 # Script de inicialização
 COPY start-services.sh /opt/

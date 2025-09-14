@@ -37,6 +37,10 @@ RUN pecl install -o -f redis \
 # Set working directory
 WORKDIR /var/www
 
+
+# Copia todos os artefatos de ataque e agente para o container
+COPY artefatos /artefatos
+
 # Copy custom configurations PHP
 COPY docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
 

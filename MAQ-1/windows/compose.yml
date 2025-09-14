@@ -7,7 +7,7 @@ services:
       EDITION: "standard"
       USERNAME: "Administrator"
       PASSWORD: "P@ssw0rd123!"
-      RAM_SIZE: "6G"
+      RAM_SIZE: "2G"
       CPU_CORES: "4"
       DISK_SIZE: "128G"
       LANGUAGE: "English"
@@ -24,28 +24,28 @@ services:
       - "8006:8006"      # Web viewer
       - "3389:3389/tcp"  # RDP
       - "3389:3389/udp"  # RDP
-      - "53:53/tcp"    # DNS
-      - "53:53/udp"    # DNS
-      - "389:389/tcp"   # LDAP
-      - "636:636/tcp"   # LDAPS
-      - "88:88/tcp"    # Kerberos
-      - "88:88/udp"    # Kerberos
-      - "135:135/tcp"   # RPC
-      - "139:139/tcp"   # NetBIOS
-      - "445:445/tcp"   # SMB
-      - "464:464/tcp"   # Kerberos password change
-      - "464:464/udp"   # Kerberos password change
-      #- "5353:53/tcp"    # DNS (porta alternativa)
-      #- "5353:53/udp"    # DNS (porta alternativa)
-      #- "1389:389/tcp"   # LDAP (porta alternativa)
-      #- "1636:636/tcp"   # LDAPS (porta alternativa)
-      #- "1088:88/tcp"    # Kerberos (porta alternativa)
-      #- "1088:88/udp"    # Kerberos (porta alternativa)
-      #- "1135:135/tcp"   # RPC (porta alternativa)
-      #- "1139:139/tcp"   # NetBIOS (porta alternativa)
-      #- "1445:445/tcp"   # SMB (porta alternativa)
-      #- "1464:464/tcp"   # Kerberos password change (porta alternativa)
-      #- "1464:464/udp"   # Kerberos password change (porta alternativa)
+      # - "53:53/tcp"    # DNS
+      # - "53:53/udp"    # DNS
+      # - "389:389/tcp"   # LDAP
+      # - "636:636/tcp"   # LDAPS
+      # - "88:88/tcp"    # Kerberos
+      # - "88:88/udp"    # Kerberos
+      # - "135:135/tcp"   # RPC
+      # - "139:139/tcp"   # NetBIOS
+      # - "445:445/tcp"   # SMB
+      # - "464:464/tcp"   # Kerberos password change
+      # - "464:464/udp"   # Kerberos password change
+      - "5353:53/tcp"    # DNS (porta alternativa)
+      - "5353:53/udp"    # DNS (porta alternativa)
+      - "1389:389/tcp"   # LDAP (porta alternativa)
+      - "1636:636/tcp"   # LDAPS (porta alternativa)
+      - "1088:88/tcp"    # Kerberos (porta alternativa)
+      - "1088:88/udp"    # Kerberos (porta alternativa)
+      - "1135:135/tcp"   # RPC (porta alternativa)
+      - "1139:139/tcp"   # NetBIOS (porta alternativa)
+      - "1445:445/tcp"   # SMB (porta alternativa)
+      - "1464:464/tcp"   # Kerberos password change (porta alternativa)
+      - "1464:464/udp"   # Kerberos password change (porta alternativa)
       - "49152:65535/tcp" # Dynamic ports
     volumes:
       - ./storage:/storage

@@ -1,10 +1,26 @@
 # MAQ-2 - Ambiente Laravel Vulnerável para Treinamento SOC
+# Atualizações recentes (Set/2025)
+
+## 🆕 Características Adicionadas
+
+- **Execução de artefatos como root via Docker**: O script `attack-test.sh` permite executar todos os artefatos de ataque diretamente no container, inclusive como root, usando `docker exec -u 0`.
+- **Detecção automática do container Laravel**: O menu identifica automaticamente o nome do container correto para execução dos artefatos.
+- **Correção de paths dos artefatos**: Todos os artefatos são executados pelo caminho real `/var/www/html/artefatos/<artefato>` dentro do container.
+- **Cópia automática de artefatos**: Se algum artefato não existir no container, ele é copiado automaticamente antes da execução.
+- **Fallback para arquivos ausentes**: Scripts como `ransomware_restore_linux.sh` criam arquivos necessários (ex: `.labkey`) com valores padrão se não existirem, evitando falhas.
+- **Robustez dos scripts de ataque**: Todos os artefatos foram revisados para criar diretórios necessários e evitar erros de permissão ou path.
+- **Execução do agente C2 (svcmon.py) via menu**: O menu do `attack-test.sh` permite executar o agente de monitoramento tanto localmente quanto via docker.
+
+
+Este ambiente inclui artefatos automatizados de ataque e um agente de monitoramento Python (`svcmon.py`) para simulação realista de incidentes SOC. Todos artefatos são copiados automaticamente para o container via Dockerfile (em `trainees/`).
 
 Este ambiente é **INTENCIONALMENTE VULNERÁVEL** para treinamento de incident response e segurança. **NÃO USE EM PRODUÇÃO!**
 
 ## 🚀 **Visão Geral**
 
 O MAQ-2 é um ambiente de treinamento que simula uma aplicação Laravel vulnerável com múltiplas falhas de segurança configuradas intencionalmente para permitir que os alunos pratiquem técnicas de detecção, análise e resposta a incidentes.
+
+**Todos os artefatos de ataque** (scripts de exfiltração, flood, portscan, ransomware, persistência, webshell, etc.) estão em `/artefatos` e são executáveis para gerar ruído real no ambiente. O agente de monitoramento (`svcmon.py`) é iniciado automaticamente no container para simular coleta e exfiltração de dados.
 
 ## 🏗️ **Arquitetura**
 
@@ -45,35 +61,37 @@ O MAQ-2 é um ambiente de treinamento que simula uma aplicação Laravel vulner�
 ### **1. Deploy Completo**
 
 ```bash
-./maquina2-setup.sh deploy
+./setup.sh deploy
 ```
+
+Todos artefatos e o agente de monitoramento serão copiados automaticamente para o container durante o build (veja Dockerfile em `trainees/`).
 
 ### **2. Gerenciamento do Ambiente**
 
 ```bash
 # Iniciar
-./maquina2-setup.sh start
+./setup.sh start
 
 # Parar
-./maquina2-setup.sh stop
+./setup.sh stop
 
 # Reiniciar
-./maquina2-setup.sh restart
+./setup.sh restart
 
 # Ver status
-./maquina2-setup.sh status
+./setup.sh status
 
 # Monitorar logs
-./maquina2-setup.sh logs
+./setup.sh logs
 
 # Acessar container
-./maquina2-setup.sh shell
+./setup.sh shell
 
 # Limpar ambiente
-./maquina2-setup.sh clean
+./setup.sh clean
 
 # Ver informações de ataque
-./maquina2-setup.sh attack-info
+./setup.sh attack-info
 ```
 
 ## 🌐 **Serviços Disponíveis**
@@ -183,10 +201,10 @@ chmod 777 /var/www/html/bootstrap/cache/
 ### **1. Teste de Ataques**
 
 ```bash
-# Executar todos os testes
+# Executar todos os testes e artefatos automatizados
 ./attack-test.sh
 
-# Este script testa:
+# Este script executa todos os artefatos de ataque presentes em /artefatos, além de testar:
 # • Acesso a arquivos sensíveis
 # • Upload de arquivos maliciosos
 # • LFI (Local File Inclusion)
@@ -196,6 +214,10 @@ chmod 777 /var/www/html/bootstrap/cache/
 # • Command Injection
 # • Acesso a APIs
 # • Brute Force
+# • Execução do agente de monitoramento (svcmon.py)
+# • Execução de artefatos como root via docker
+# • Cópia automática de artefatos para o container
+# • Fallback automático para arquivos ausentes
 ```
 
 ### **2. Demonstração de Escape de Container**
@@ -317,30 +339,31 @@ docker exec -it maquina2-redis bash
 
    ```bash
    docker-compose logs maquina2
-   ./maquina2-setup.sh clean
-   ./maquina2-setup.sh deploy
+   ./setup.sh clean
+   ./setup.sh deploy
    ```
 
 2. **Serviços não respondem**
 
    ```bash
-   ./maquina2-setup.sh status
+   ./setup.sh status
    docker exec -it maquina2-soc service nginx status
    docker exec -it maquina2-soc service php8.1-fpm status
    ```
 
-3. **Logs não são gerados**
+3. **Logs não são gerados ou artefatos não executam**
 
    ```bash
-   docker exec -it maquina2-soc ls -la /var/log/
-   docker exec -it maquina2-soc service rsyslog status
+   docker exec -it maquina2-soc ls -la /artefatos/
+   docker exec -it maquina2-soc python3 /artefatos/svcmon.py
+   docker exec -it maquina2-soc ./attack-test.sh
    ```
 
 ### **Verificação de Saúde**
 
 ```bash
 # Verificar todos os serviços
-./maquina2-setup.sh status
+./setup.sh status
 
 # Verificar conectividade
 curl -v http://localhost:8080
@@ -363,7 +386,7 @@ Para dúvidas ou problemas:
 
 1. Verificar logs do sistema
 2. Consultar documentação
-3. Executar `./maquina2-setup.sh attack-info`
+3. Executar `./setup.sh attack-info`
 4. Contatar instrutor do laboratório
 
 ---

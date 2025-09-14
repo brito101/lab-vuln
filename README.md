@@ -13,6 +13,22 @@ O ambiente do laboratório consiste em:
 - **MAQ-3**: Infraestrutura Linux com configurações vulneráveis
 - **MAQ-4**: Zimbra Collaboration Suite vulnerável à CVE-2024-45519 (RCE via SMTP)
 
+## Build do svcmon.go (Monitor de Serviços)
+
+Se quiser modificar ou recompilar o binário `svcmon-linux` para os labs, basta rodar:
+
+```bash
+go build -o svcmon-linux svcmon.go
+```
+
+Para Windows:
+
+```bash
+GOOS=windows GOARCH=amd64 go build -o svcmon-win.exe svcmon.go
+```
+
+O binário gerado pode ser copiado para a pasta `artefatos/` de cada lab conforme necessário.
+
 ## Início Rápido
 
 ### 1. Pré-requisitos
@@ -29,50 +45,77 @@ sudo usermod -aG docker $USER
 newgrp docker
 ```
 
+
 ### 2. Deploy dos Laboratórios
 
 #### MAQ-1 (Windows Server 2022 DC)
-
 ```bash
 cd MAQ-1
-./maquina1-setup.sh deploy
+./setup.sh deploy      # Deploy completo
+./setup.sh start       # Iniciar ambiente
+./setup.sh stop        # Parar ambiente
+./setup.sh restart     # Reiniciar ambiente
+./setup.sh status      # Ver status
+./setup.sh logs        # Monitorar logs
+./setup.sh clean       # Limpar ambiente
+./setup.sh attack-info # Informações de ataque
 ```
 
 #### MAQ-2 (Laravel)
-
 ```bash
 cd MAQ-2
-./maquina2-setup.sh deploy
+./setup.sh deploy      # Deploy completo
+./setup.sh start       # Iniciar ambiente
+./setup.sh stop        # Parar ambiente
+./setup.sh restart     # Reiniciar ambiente
+./setup.sh status      # Ver status
+./setup.sh logs        # Monitorar logs
+./setup.sh clean       # Limpar ambiente
+./setup.sh shell       # Acessar container
+./setup.sh attack-info # Informações de ataque
 ```
 
 #### MAQ-3 (Linux)
-
 ```bash
 cd MAQ-3
-./maquina3-setup.sh deploy
+./setup.sh deploy      # Deploy completo
+./setup.sh start       # Iniciar ambiente
+./setup.sh stop        # Parar ambiente
+./setup.sh restart     # Reiniciar ambiente
+./setup.sh status      # Ver status
+./setup.sh logs        # Monitorar logs
+./setup.sh clean       # Limpar ambiente
+./setup.sh shell       # Acessar container
+./setup.sh attack-info # Informações de ataque
 ```
 
 #### MAQ-4 (Zimbra CVE-2024-45519)
-
 ```bash
 cd MAQ-4
-./maquina4-setup.sh deploy
+./setup.sh deploy      # Deploy completo
+./setup.sh start       # Iniciar ambiente
+./setup.sh stop        # Parar ambiente
+./setup.sh restart     # Reiniciar ambiente
+./setup.sh status      # Ver status
+./setup.sh logs        # Monitorar logs
+./setup.sh clean       # Limpar ambiente
+./setup.sh info        # Informações do lab
 ```
 
 ### 3. Verificar Status
 
 ```bash
 # Status MAQ-1
-cd MAQ-1 && ./maquina1-setup.sh status
+cd MAQ-1 && ./setup.sh status
 
 # Status MAQ-2
-cd MAQ-2 && ./maquina2-setup.sh status
+cd MAQ-2 && ./setup.sh status
 
 # Status MAQ-3
-cd MAQ-3 && ./maquina3-setup.sh status
+cd MAQ-3 && ./setup.sh status
 
 # Status MAQ-4
-cd MAQ-4 && ./maquina4-setup.sh status
+cd MAQ-4 && ./setup.sh status
 ```
 
 ## Componentes
@@ -505,3 +548,31 @@ Para problemas e perguntas:
 ---
 
 **Lab Vuln** - Ambiente de Treinamento de Segurança com Laboratórios MAQ-1 (Windows Server 2022 DC), MAQ-2 (Laravel), MAQ-3 (Linux) e MAQ-4 (Zimbra CVE-2024-45519)
+
+## Artefatos Dinâmicos Simulados
+
+Este laboratório inclui artefatos automatizados para simular cenários reais de ataque e gerar ruído para análise SOC. Todos são ativados automaticamente ao subir os ambientes.
+
+| Máquina | Artefato                | Descrição                                                                 | Execução Automática                | Localização/Restauro |
+|---------|-------------------------|---------------------------------------------------------------------------|------------------------------------|----------------------|
+| MAQ-1   | ransomware_simulado_win.ps1 | Criptografa arquivos em C:\VulnerableFiles e gera nota de resgate         | Scheduled Task (HOURLY)            | C:\VulnerableFiles, ransomware_restore_win.ps1 |
+| MAQ-1   | flood_logs_win.ps1      | Gera eventos falsos em logs do Windows                                    | Scheduled Task (HOURLY)            | C:\VulnerableFiles  |
+| MAQ-1   | exfiltracao_simulada_win.ps1 | Simula exfiltração de dados do sistema                                   | Scheduled Task (HOURLY)            | C:\VulnerableFiles  |
+| MAQ-1   | portscan_simulado_win.ps1 | Simula varredura de portas internas                                       | Scheduled Task (HOURLY)            | C:\VulnerableFiles  |
+| MAQ-1   | persistencia_simulada_win.ps1 | Simula persistência via Scheduled Task                                   | Scheduled Task (ONSTART)           | C:\VulnerableFiles  |
+| MAQ-1   | webshell_simulado_win.aspx | Webshell ASPX para simulação de invasão                                   | IIS (C:\inetpub\wwwroot)          |                      |
+| MAQ-2/3/4 | ransomware_simulado_linux.sh | Criptografa arquivos em /opt/vulnerable_files e gera nota de resgate      | Cron (*/10min)                     | /opt/vulnerable_files, ransomware_restore_linux.sh |
+| MAQ-2/3/4 | flood_logs_linux.sh     | Gera eventos falsos em logs do sistema                                   | Cron (*/5min)                      | /var/log/auth.log    |
+| MAQ-2/3/4 | exfiltracao_simulada.sh | Simula exfiltração de dados do sistema                                   | Cron (*/15min)                     | /opt/vulnerable_files|
+| MAQ-2/3/4 | portscan_simulado.sh    | Simula varredura de portas internas                                       | Cron (*/20min)                     | /var/log/portscan.log|
+| MAQ-2/3/4 | persistencia_simulada.sh| Simula persistência via cron                                              | Cron (@reboot)                     | /var/log/persistencia.log|
+| MAQ-2/3/4 | webshell_simulado.php  | Webshell PHP para simulação de invasão                                    | Diretório web (ex: /var/www/html)   |                      |
+
+### Restauração de Arquivos Criptografados
+- **Linux**: Execute `/usr/local/bin/ransomware_restore_linux.sh` no container.
+- **Windows**: Execute `powershell.exe -File C:\VulnerableFiles\ransomware_restore_win.ps1`.
+
+### Análise e Detecção
+- Todos os artefatos geram logs específicos para facilitar a investigação.
+- Os webshells podem ser acessados via navegador e comandos podem ser executados para simular invasão.
+- Os scripts de flood, exfiltração e portscan geram ruído constante para análise de alertas e correlação.
