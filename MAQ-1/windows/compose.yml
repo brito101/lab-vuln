@@ -1,12 +1,12 @@
 services:
   windows-dc:
     image: dockurr/windows
-    container_name: windows-dc-lab
+    container_name: maq1-windows
     environment:
       VERSION: "2022"
       EDITION: "standard"
-      USERNAME: "Administrator"
-      PASSWORD: "P@ssw0rd123!"
+      USERNAME: "Docker"
+      PASSWORD: "admin"
       RAM_SIZE: "2G"
       CPU_CORES: "4"
       DISK_SIZE: "128G"
@@ -24,6 +24,7 @@ services:
       - "8006:8006"      # Web viewer
       - "3389:3389/tcp"  # RDP
       - "3389:3389/udp"  # RDP
+      - "5985:5985/tcp"  # WinRM
       # - "53:53/tcp"    # DNS
       # - "53:53/udp"    # DNS
       # - "389:389/tcp"   # LDAP
@@ -51,6 +52,7 @@ services:
       - ./storage:/storage
       - ./scripts:/oem
       - ./iso:/iso
+      - ../artefatos:/data
     restart: unless-stopped
     stop_grace_period: 2m
     networks:

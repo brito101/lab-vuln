@@ -1,35 +1,50 @@
 
-# Simulador de ransomware (Windows)
-# "Criptografa" arquivos em C:\vulnerable_files via base64 (reversível) e gera nota de resgate
+# Simulador de ransomware simplificado (Windows)
+# "Criptografa" arquivos no diretório TEMP
 
-$targetDir = "C:\vulnerable_files"
-$keyFile = Join-Path $targetDir ".labkey"
-$noteFile = Join-Path $targetDir "README_RESCUE.txt"
+$targetDir = "$env:TEMP\VulnFiles"
+$keyFile = "$targetDir\.labkey"
+$noteFile = "$targetDir\README_RESCUE.txt"
 $ext = ".locked"
 
-if (!(Test-Path $targetDir)) { New-Item -ItemType Directory -Path $targetDir -Force | Out-Null }
+Write-Host "[RANSOMWARE] Iniciando simulação de ransomware..."
 
-# Gera chave se não existir (apenas decorativo neste modo)
-if (!(Test-Path $keyFile)) {
-	$key = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 32 | ForEach-Object {[char]$_})
-	Set-Content -Path $keyFile -Value $key
+# Criar diretório se não existir
+if (!(Test-Path $targetDir)) { 
+    New-Item -ItemType Directory -Path $targetDir -Force | Out-Null 
+    Write-Host "[RANSOMWARE] Diretório criado: $targetDir"
 }
 
-# Criptografia simulada: base64 com certutil (reversível pelo restore)
-Get-ChildItem -Path $targetDir -File -Recurse | Where-Object { $_.Extension -ne $ext -and $_.Name -ne ".labkey" -and $_.Name -ne "README_RESCUE.txt" } | ForEach-Object {
-	$in = $_.FullName
-	$out = "$in$ext"
-	try {
-		certutil -f -encode $in $out | Out-Null
-		Remove-Item $in -Force
-		Add-Content -Path (Join-Path $targetDir ".ransom_log") -Value "Arquivo $in criptografado em $(Get-Date)"
-		Start-Sleep -Milliseconds 500
-	} catch {
-		Write-Host "Falha ao processar $in: $_"
-	}
+# Criar alguns arquivos de teste
+$testFiles = @("documento.txt", "dados.csv", "config.ini", "backup.db")
+foreach ($file in $testFiles) {
+    $filePath = Join-Path $targetDir $file
+    "Conteúdo importante do arquivo $file criado em $(Get-Date)" | Set-Content -Path $filePath
+    Write-Host "[RANSOMWARE] Arquivo criado: $file"
 }
 
+# Gerar chave
+$key = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 32 | ForEach-Object {[char]$_})
+Set-Content -Path $keyFile -Value $key
+Write-Host "[RANSOMWARE] Chave gerada e salva"
+
+# Simular criptografia (renomear arquivo)
+Get-ChildItem -Path $targetDir -File | Where-Object { $_.Extension -ne $ext -and $_.Name -ne ".labkey" -and $_.Name -ne "README_RESCUE.txt" } | ForEach-Object {
+    $oldName = $_.FullName
+    $newName = "$oldName$ext"
+    Rename-Item $oldName $newName
+    Write-Host "[RANSOMWARE] Arquivo $($_.Name) criptografado"
+    Add-Content -Path "$targetDir\.ransom_log" -Value "Arquivo $($_.Name) criptografado em $(Get-Date)"
+    Start-Sleep -Milliseconds 500
+}
+
+# Criar nota de resgate
 @"
 SEUS ARQUIVOS FORAM CRIPTOGRAFADOS!
 Para restaurar, use o script de restauração. A chave está em $keyFile.
+Data: $(Get-Date)
 "@ | Set-Content -Path $noteFile -Encoding UTF8
+
+Write-Host "[RANSOMWARE] Simulação completa! Arquivos criptografados em $targetDir"
+Write-Host "[RANSOMWARE] Arquivos afetados:"
+Get-ChildItem $targetDir -Filter "*.locked" | Select-Object Name, Length

@@ -8,14 +8,15 @@ foreach ($t in $targets) {
 			$tcp = New-Object System.Net.Sockets.TcpClient
 			$tcp.Connect($t, $p)
 			if ($tcp.Connected) {
-				Write-Host "[PORTSCAN] $t:$p aberto"
-				Add-Content -Path "$env:temp\portscan_log.txt" -Value "$t:$p aberto em $(Get-Date)"
+				Write-Host "[PORTSCAN] ${t}:${p} aberto"
+				Add-Content -Path "$env:temp\portscan_log.txt" -Value "${t}:${p} aberto em $(Get-Date)"
 			}
 			$tcp.Close()
 		} catch {
-			Write-Host "[PORTSCAN] $t:$p fechado"
-			Add-Content -Path "$env:temp\portscan_log.txt" -Value "$t:$p fechado em $(Get-Date)"
+			Write-Host "[PORTSCAN] ${t}:${p} fechado"
+			Add-Content -Path "$env:temp\portscan_log.txt" -Value "${t}:${p} fechado em $(Get-Date)"
 		}
 		Start-Sleep -Seconds 1
 	}
 }
+Write-Host "[PORTSCAN] Scan completo"

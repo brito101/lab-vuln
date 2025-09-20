@@ -17,7 +17,7 @@ done
 set -e
 
 # Configurações
-CONTAINER_NAME="windows-dc-lab"
+CONTAINER_NAME="maq1-windows"
 IMAGE_NAME="dockurr/windows"
 NETWORK_NAME="lab-network"
 SUBNET="192.168.101.0/24"
