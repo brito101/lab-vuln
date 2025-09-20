@@ -32,8 +32,86 @@ docker --version
 # Iniciar o container Windows
 ./setup.sh
 
+# IMPORTANTE: Na primeira execução, o Windows Server 2022 será baixado e instalado
+# Este processo pode demorar 30-60 minutos dependendo da sua conexão
+# Monitore o progresso em: http://localhost:8006
+
+# Para acompanhar a instalação em tempo real:
+./monitor-installation.sh
+
 # Aguardar alguns minutos para o Windows inicializar completamente
-# O processo pode demorar 5-10 minutos na primeira execução
+# O processo pode demorar 5-10 minutos após a instalação
+```
+
+### 3. Configurar WinRM (OBRIGATÓRIO)
+
+**⚠️ IMPORTANTE: O WinRM deve ser configurado manualmente DENTRO do Windows após a primeira inicialização.**
+
+```bash
+# 1. Verificar se há instruções de configuração
+./setup-winrm.sh
+
+# 2. Acessar o Windows:
+#    - Web: http://localhost:8006
+#    - RDP: localhost:3389 (usuário: Docker, senha: admin)
+
+# 3. Dentro do Windows, abrir PowerShell como Administrador e executar:
+#    PowerShell -ExecutionPolicy Bypass -File "\\host.lan\Data\configure-winrm.ps1"
+
+# 4. Testar a conectividade:
+./setup-winrm.sh test
+```
+
+**🔧 O que o script `configure-winrm.ps1` faz:**
+- Habilita o serviço WinRM
+- Configura autenticação básica
+- Permite conexões não criptografadas (apenas para laboratório)
+- Configura regras de firewall
+- Testa a configuração automaticamente
+
+### 4. Executar Simulações de Ataquedows Server 2022
+
+## Visão Geral
+
+Este laboratório simula um ambiente Windows Server 2022 para estudos de segurança e análise de vulnerabilidades. Utiliza a imagem `dockur/windows` que executa Windows Server via QEMU/KVM dentro de um container Docker.
+
+**⚠️ ATENÇÃO: Este é um ambiente de LABORATÓRIO com vulnerabilidades intencionais. NUNCA use em produção!**
+
+## 🎯 Objetivos do Laboratório
+
+- Configurar Windows Server 2022 em ambiente containerizado
+- Implementar simulações de ataques via WinRM (Windows Remote Management)
+- Demonstrar técnicas de análise de artefatos maliciosos
+- Praticar resposta a incidentes em ambiente controlado
+- Estudar comportamentos de malware em sistemas Windows
+
+## 🚀 Instruções de Execução
+
+### 1. Preparar o Ambiente
+```bash
+# Clonar o repositório (se necessário)
+git clone <repository-url>
+cd lab-vuln/MAQ-1
+
+# Verificar dependências
+python3 --version
+docker --version
+```
+
+### 2. Iniciar o Laboratório
+```bash
+# Iniciar o container Windows
+./setup.sh
+
+# IMPORTANTE: Na primeira execução, o Windows Server 2022 será baixado e instalado
+# Este processo pode demorar 30-60 minutos dependendo da sua conexão
+# Monitore o progresso em: http://localhost:8006
+
+# Para acompanhar a instalação em tempo real:
+./monitor-installation.sh
+
+# Aguardar alguns minutos para o Windows inicializar completamente
+# O processo pode demorar 5-10 minutos após a instalação
 ```
 
 ### 3. Executar Simulações de Ataque
@@ -45,7 +123,7 @@ docker --version
 ./attack-test.sh artefatos
 ```
 
-### 4. Acessar o Sistema Windows
+### 5. Acessar o Sistema Windows
 
 - **Web Interface (noVNC)**: http://localhost:8006
 - **RDP**: `localhost:3389`
@@ -60,7 +138,7 @@ docker --version
 ├─────────────────────────────────────────────────────────────┤
 │  Windows Server 2022 (via dockur/windows)                  │
 │  - QEMU/KVM dentro de container Docker                     │
-│  - WinRM habilitado na porta 5985                          │
+│  - WinRM na porta 5985 (requer configuração manual)       │
 │  - Usuário: Docker / Senha: admin                          │
 │  - Políticas de execução PowerShell permissivas            │
 ├─────────────────────────────────────────────────────────────┤
@@ -177,6 +255,23 @@ telnet localhost 4444
 
 ## 🔧 Solução de Problemas
 
+### Primeira Instalação (Muito Importante!)
+```bash
+# Na PRIMEIRA execução, o sistema irá:
+# 1. Baixar Windows Server 2022 (~5GB)
+# 2. Extrair e configurar a imagem
+# 3. Criar disco virtual de 128GB
+# 4. Instalar e configurar o Windows
+
+# TEMPO ESTIMADO: 30-60 minutos (dependendo da conexão)
+
+# Monitorar instalação:
+./monitor-installation.sh
+
+# Acompanhar visualmente:
+# http://localhost:8006
+```
+
 ### Container não inicia
 ```bash
 # Verificar portas em uso
@@ -191,13 +286,25 @@ sudo systemctl restart docker
 
 ### WinRM não conecta
 ```bash
-# Aguardar inicialização (pode demorar até 10 minutos)
-# Verificar se container está rodando
+# 1. Verificar se o container está rodando
 docker ps | grep maq1-windows
 
-# Testar conectividade
-curl -v http://localhost:5985/wsman
+# 2. Verificar se Windows inicializou completamente
+docker logs maq1-windows | grep "Windows started"
+
+# 3. Executar diagnóstico completo
+./diagnose-winrm.sh
+
+# 4. Se necessário, configurar WinRM manualmente:
+#    - Acesse http://localhost:8006
+#    - Abra PowerShell como Administrador
+#    - Execute: PowerShell -ExecutionPolicy Bypass -File "\\host.lan\Data\configure-winrm.ps1"
+
+# 5. Testar conectividade após configuração
+./setup-winrm.sh test
 ```
+
+**⚠️ LEMBRE-SE: O WinRM DEVE ser configurado manualmente dentro do Windows na primeira execução!**
 
 ### Scripts PowerShell falham
 ```bash

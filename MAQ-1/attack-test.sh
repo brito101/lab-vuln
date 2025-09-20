@@ -10,6 +10,45 @@ WINRM_USER="Docker"
 WINRM_PASS="admin"
 ARTEFATOS_DIR="$(dirname "$0")/artefatos"
 
+# Função para verificar status do container
+check_container_status() {
+    echo "[INFO] Verificando status do container..."
+    
+    if ! docker ps | grep -q "maq1-windows"; then
+        echo "[ERRO] Container maq1-windows não está rodando!"
+        echo "[INFO] Para iniciar o container, execute: ./setup.sh"
+        return 1
+    fi
+    
+    local container_uptime=$(docker ps --format "table {{.Names}}\t{{.Status}}" | grep maq1-windows | awk '{print $2,$3}')
+    echo "[INFO] Container status: $container_uptime"
+    
+    # Verificar se o Windows terminou de inicializar primeiro
+    if docker logs maq1-windows 2>/dev/null | grep -q "Windows started succesfully"; then
+        echo "[INFO] ✅ Windows inicializou com sucesso!"
+        echo "[INFO] Verificando se WinRM está pronto..."
+        return 0
+    fi
+    
+    # Verificar se está na primeira instalação (só se não iniciou com sucesso)
+    if docker logs maq1-windows 2>/dev/null | grep -q "Downloading Windows Server"; then
+        echo "[INFO] 🚀 PRIMEIRA INSTALAÇÃO DETECTADA!"
+        echo "[INFO] O Windows Server 2022 está sendo baixado e instalado."
+        echo "[INFO] Este processo pode demorar 30-60 minutos dependendo da conexão."
+        echo "[INFO] 📺 Acompanhe o progresso em: http://localhost:8006"
+        echo "[INFO] ⏰ Aguarde a instalação terminar antes de executar ataques."
+        return 1
+    fi
+    
+    # Verificar se o container está up há tempo suficiente
+    if [[ $container_uptime == *"second"* ]] || [[ $container_uptime == *"minute"* ]]; then
+        echo "[WARNING] Container foi iniciado recentemente."
+        echo "[INFO] ⏰ Primeira inicialização pode demorar 10-15 minutos para configurar o WinRM."
+    fi
+    
+    return 0
+}
+
 # Função para verificar dependências
 check_dependencies() {
     if ! command -v python3 &> /dev/null; then
@@ -26,26 +65,72 @@ check_dependencies() {
     fi
 }
 
-# Função para testar conectividade WinRM
+# Função para testar conectividade WinRM com retry
 test_winrm_connection() {
-    python3 -c "
+    local max_attempts=3
+    local wait_time=10
+    
+    echo "[INFO] Testando conectividade WinRM..."
+    
+    for ((i=1; i<=max_attempts; i++)); do
+        echo "[INFO] Tentativa $i/$max_attempts..."
+        
+        # Primeiro teste: verificar se a porta está aberta
+        if ! timeout 5 bash -c 'cat < /dev/null > /dev/tcp/localhost/5985' 2>/dev/null; then
+            echo "[ERRO] Porta 5985 não está acessível"
+            if [[ $i -eq $max_attempts ]]; then
+                echo "[INFO] Verifique se o container está rodando: docker ps | grep maq1-windows"
+                return 1
+            fi
+            echo "[INFO] Aguardando ${wait_time}s antes da próxima tentativa..."
+            sleep $wait_time
+            continue
+        fi
+        
+        # Segundo teste: verificar WinRM via Python
+        python3 -c "
 import winrm
+import sys
 try:
     session = winrm.Session('http://$WINRM_HOST:$WINRM_PORT/wsman', 
                            auth=('$WINRM_USER', '$WINRM_PASS'), 
-                           transport='basic')
+                           transport='basic',
+                           operation_timeout_sec=10,
+                           read_timeout_sec=15)
     result = session.run_ps('echo \"Conexao OK\"')
     if result.status_code == 0:
-        exit(0)
+        print('[SUCCESS] WinRM conectado com sucesso')
+        sys.exit(0)
     else:
-        exit(1)
-except Exception:
-    exit(1)
-" || {
-        echo "[ERRO] Container Windows não está acessível via WinRM."
-        echo "[INFO] Verifique se o container está rodando e a porta 5985 está exposta."
-        return 1
-    }
+        print(f'[ERRO] WinRM retornou código: {result.status_code}')
+        sys.exit(1)
+except Exception as e:
+    print(f'[ERRO] Falha na conexão WinRM: {e}')
+    sys.exit(1)
+" && return 0
+        
+        if [[ $i -eq $max_attempts ]]; then
+            echo "[ERRO] Container Windows não está acessível via WinRM após $max_attempts tentativas."
+            echo ""
+            echo "🔍 POSSÍVEIS CAUSAS:"
+            echo "  1. 🚀 Windows ainda está sendo instalado/configurado (primeira execução)"
+            echo "  2. ⏰ Windows iniciou recentemente e WinRM ainda não está pronto"
+            echo "  3. 🔧 WinRM não está configurado (mais provável)"
+            echo "  4. 🔑 Credenciais incorretas (Docker:admin)"
+            echo ""
+            echo "🛠️  SOLUÇÕES:"
+            echo "  1. 🔧 Execute: ./setup-winrm.sh (para configurar WinRM)"
+            echo "  2. 📺 Acesse http://localhost:8006 para ver o desktop do Windows"
+            echo "  3. ⏰ Aguarde mais 10-15 minutos se for primeira instalação"
+            echo "  4. 🔄 Teste RDP: conecte em localhost:3389 (Docker:admin)"
+            echo ""
+            return 1
+        fi
+        
+        echo "[INFO] Aguardando ${wait_time}s antes da próxima tentativa..."
+        echo "[INFO] Windows pode estar ainda inicializando... Seja paciente."
+        sleep $wait_time
+    done
 }
 
 # Função para executar script PowerShell
@@ -179,6 +264,7 @@ artefatos_menu() {
 }
 
 # Executar função principal
+check_container_status || exit 1
 check_dependencies
 
 if [[ "$1" == "artefatos" ]]; then
